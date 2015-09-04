@@ -235,7 +235,8 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                     if (mtotalDevo < 0)
                     {
                         //Quiere decir que totaldevolucion tiene saldo 
-                        txtDiferencia.Text = (mtotalDevo * -1).ToString();
+                        int d = ToEntero((mtotalDevo * -1).ToString(), NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                        txtDiferencia.Text = d.ToString("#,#", CultureInfo.InvariantCulture); 
                         mtotalDevo = 0;
 
                     }
@@ -355,7 +356,9 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                     if (mtotalDevo < 0)
                     {
                         //Quiere decir que totaldevolucion tiene saldo 
-                        txtDiferencia.Text = (mtotalDevo * -1).ToString();
+
+                        int d = ToEntero((mtotalDevo * -1).ToString(), NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                        txtDiferencia.Text = d.ToString("#,#", CultureInfo.InvariantCulture);
                         mtotalDevo = 0;
 
                     }
@@ -389,7 +392,10 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                     if (mtotalDevo < 0)
                     {
                         //Quiere decir que totaldevolucion tiene saldo 
-                        txtDiferencia.Text = (mtotalDevo * -1).ToString();
+                        int de = ToEntero((mtotalDevo * -1).ToString(), NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                        txtDiferencia.Text = de.ToString("#,#", CultureInfo.InvariantCulture);
+
+                        
                         mtotalDevo = 0;
 
                     }
@@ -460,8 +466,10 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                             vtemporal[filaProd].cantidad = Value.ToString();
                             vtemporal[filaProd].total = total.ToString();
 
+                            int totall = ToEntero(txttotal.Text, NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                            
 
-                            string d = (Convert.ToDouble(txttotal.Text) - dineroDevolucion).ToString();
+                            string d = (Convert.ToDouble(totall) - dineroDevolucion).ToString();
 
                             int prT = ToEntero(d, NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
                             txttotal.Text = prT.ToString("#,#", CultureInfo.InvariantCulture); ;
@@ -504,7 +512,8 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                     if (mtotalDevo < 0)
                     {
                         //Quiere decir que totaldevolucion tiene saldo 
-                        txtDiferencia.Text = (mtotalDevo * -1).ToString();
+                        int de = ToEntero((mtotalDevo * -1).ToString(), NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                        txtDiferencia.Text = de.ToString("#,#", CultureInfo.InvariantCulture);
                         mtotalDevo = 0;
 
                     }
@@ -536,7 +545,8 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                     if (mtotalDevo < 0)
                     {
                         //Quiere decir que totaldevolucion tiene saldo 
-                        txtDiferencia.Text = (mtotalDevo * -1).ToString();
+                        int de = ToEntero((mtotalDevo * -1).ToString(), NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                        txtDiferencia.Text = de.ToString("#,#", CultureInfo.InvariantCulture);
                         mtotalDevo = 0;
 
                     }
@@ -841,7 +851,8 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
             if (mtotalDevo < 0)
             {
                 //Quiere decir que totaldevolucion tiene saldo 
-                txtDiferencia.Text = (mtotalDevo * -1).ToString();
+                int de = ToEntero((mtotalDevo * -1).ToString(), NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                txtDiferencia.Text = de.ToString("#,#", CultureInfo.InvariantCulture);
                 mtotalDevo = 0;
 
             }
@@ -1126,15 +1137,18 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                 }
                                 if (!string.IsNullOrEmpty(ventaTemp.idProducto))
                                 {
-                                    int difDevo = Convert.ToInt32(ventaTemp.cantidad) - Convert.ToInt32(ventaTemp.devolver);
+
+                                    int cantidad = ToEntero(ventaTemp.cantidad, NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                                    int devolver = ToEntero(ventaTemp.devolver, NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                                    int difDevo = Convert.ToInt32(cantidad) - Convert.ToInt32(devolver);
                                     //MessageBox.Show("dif:" + difDevo.ToString());
                                     if (difDevo == 0)
                                     {//si cantidad devolucion es igul a cantidad venta, actualizar stock producto y borrar registro de venta
-                                        int sumStock = Convert.ToInt32(ventaTemp.devolver);
+                                        int sumStock = ToEntero(ventaTemp.devolver, NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
                                         ProductoFacade prodFac = new ProductoFacade();
                                         string actStock = prodFac.actualizarStockProductoDevolucion(ventaTemp.idProducto, sumStock);
                                         ventasFacade ventFac = new ventasFacade();
-                                        string borrar = ventFac.borrarventaByidVenta(Convert.ToDouble(ventaTemp.idVenta), ventaTemp.idProducto, Convert.ToDateTime(fechaDevolucion));
+                                        string borrar = ventFac.borrarventaByidVenta(ventaTemp.idVenta, ventaTemp.idProducto, Convert.ToDateTime(fechaDevolucion));
 
                                         if (!string.IsNullOrEmpty(actStock))
                                         {
@@ -1159,11 +1173,13 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                     }
                                     else
                                     {//si cantidad devolucion no es igual a cantidad en venta , actualizar venta e stock producto
-                                        int sumStock = Convert.ToInt32(ventaTemp.devolver);
+                                        int sumStock = ToEntero(ventaTemp.devolver, NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
                                         ProductoFacade prodFac = new ProductoFacade();
                                         string actStock = prodFac.actualizarStockProductoDevolucion(ventaTemp.idProducto, sumStock);
                                         ventasFacade ventFac = new ventasFacade();
-                                        string actVenta = ventFac.actualizarventaDevolucion(Convert.ToDouble(ventaTemp.idVenta), ventaTemp.idProducto, Convert.ToDateTime(fechaDevolucion), difDevo, difDevo * Convert.ToInt32(ventaTemp.precio));
+                                        int precio = ToEntero(ventaTemp.precio.ToString(), NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                                        
+                                        string actVenta = ventFac.actualizarventaDevolucion(ventaTemp.idVenta, ventaTemp.idProducto, Convert.ToDateTime(fechaDevolucion), difDevo, difDevo * precio);
 
                                         if (!string.IsNullOrEmpty(actStock))
                                         {
@@ -1223,7 +1239,8 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                             //actualizar deuda y total de compras
                             clienteFacade clienteFac = new clienteFacade();
                             //MessageBox.Show("rut cliente a fiar:"+rutcliente);
-                            string rActu = clienteFac.actualizar_DFT_Cliente(rutcliente, Convert.ToDouble(txttotal.Text), fechaactual);
+                            int total = ToEntero(txttotal.Text.ToString(), NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                            string rActu = clienteFac.actualizar_DFT_Cliente(rutcliente, Convert.ToDouble(total), fechaactual);
                             if (rActu.Equals(""))
                             {
                                 MessageBox.Show("Deuda ingresada a usuario:" + nombreCliente + "", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -1265,15 +1282,17 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                     //Si esta en proceso de devolucion btn se llamara cambiar
                                     if (!string.IsNullOrEmpty(ventaTemp.idProducto))
                                     {
-                                        int difDevo = Convert.ToInt32(ventaTemp.cantidad) - Convert.ToInt32(ventaTemp.devolver);
+                                        int cantidad = ToEntero(ventaTemp.cantidad, NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                                        int devolver = ToEntero(ventaTemp.devolver, NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                                        int difDevo = Convert.ToInt32(cantidad) - Convert.ToInt32(devolver);
                                         //MessageBox.Show("dif:" + difDevo.ToString());
                                         if (difDevo == 0)
                                         {//si cantidad devolucion es igul a cantidad venta, actualizar stock producto y borrar registro de venta
-                                            int sumStock = Convert.ToInt32(ventaTemp.devolver);
+                                            int sumStock = ToEntero(ventaTemp.devolver, NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
                                             ProductoFacade prodFac = new ProductoFacade();
                                             string actStock = prodFac.actualizarStockProductoDevolucion(ventaTemp.idProducto, sumStock);
                                             ventasFacade ventFac = new ventasFacade();
-                                            string borrar = ventFac.borrarventaByidVenta(Convert.ToDouble(ventaTemp.idVenta), ventaTemp.idProducto, Convert.ToDateTime(fechaDevolucion));
+                                            string borrar = ventFac.borrarventaByidVenta(ventaTemp.idVenta, ventaTemp.idProducto, Convert.ToDateTime(fechaDevolucion));
 
                                             if (!string.IsNullOrEmpty(actStock))
                                             {
@@ -1298,11 +1317,12 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                         }
                                         else
                                         {//si cantidad devolucion no es igual a cantidad en venta , actualizar venta e stock producto
-                                            int sumStock = Convert.ToInt32(ventaTemp.devolver);
+                                            int sumStock = ToEntero(ventaTemp.devolver, NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
                                             ProductoFacade prodFac = new ProductoFacade();
                                             string actStock = prodFac.actualizarStockProductoDevolucion(ventaTemp.idProducto, sumStock);
                                             ventasFacade ventFac = new ventasFacade();
-                                            string actVenta = ventFac.actualizarventaDevolucion(Convert.ToDouble(ventaTemp.idVenta), ventaTemp.idProducto, Convert.ToDateTime(fechaDevolucion), difDevo, difDevo * Convert.ToInt32(ventaTemp.precio));
+                                            int precio = ToEntero(ventaTemp.precio.ToString(), NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                                            string actVenta = ventFac.actualizarventaDevolucion(ventaTemp.idVenta, ventaTemp.idProducto, Convert.ToDateTime(fechaDevolucion), difDevo, difDevo * Convert.ToInt32(precio));
 
                                             if (!string.IsNullOrEmpty(actStock))
                                             {
@@ -1391,11 +1411,13 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                             }
                             if (!string.IsNullOrEmpty(ventaTemp.idProducto))
                             {
-                                int difDevo = Convert.ToInt32(ventaTemp.cantidad) - Convert.ToInt32(ventaTemp.devolver);
+                                int cantidad = ToEntero(ventaTemp.cantidad, NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                                int devolver = ToEntero(ventaTemp.devolver, NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                                int difDevo = Convert.ToInt32(cantidad) - Convert.ToInt32(devolver);
                                 //MessageBox.Show("dif:" + difDevo.ToString());
                                 if (difDevo == 0)
                                 {//si cantidad devolucion es igul a cantidad venta, actualizar stock producto y borrar registro de venta
-                                    int sumStock = Convert.ToInt32(ventaTemp.devolver);
+                                    int sumStock = ToEntero(ventaTemp.devolver, NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
                                     ProductoFacade prodFac = new ProductoFacade();
                                     string actStock = prodFac.actualizarStockProductoDevolucion(ventaTemp.idProducto, sumStock);
                                     ventasFacade ventFac = new ventasFacade();
@@ -1423,11 +1445,15 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                 }
                                 else
                                 {//si cantidad devolucion no es igual a cantidad en venta , actualizar venta e stock producto
-                                    int sumStock = Convert.ToInt32(ventaTemp.devolver);
+
+                                    
+                                    int sumStock = ToEntero(ventaTemp.devolver, NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
                                     ProductoFacade prodFac = new ProductoFacade();
                                     string actStock = prodFac.actualizarStockProductoDevolucion(ventaTemp.idProducto, sumStock);
                                     ventasFacade ventFac = new ventasFacade();
-                                    string actVenta = ventFac.actualizarventaDevolucion(Convert.ToDouble(ventaTemp.idVenta), ventaTemp.idProducto, Convert.ToDateTime(fechaDevolucion), difDevo, difDevo * Convert.ToInt32(ventaTemp.precio));
+                                    int precioD = ToEntero(ventaTemp.precio, NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                                    
+                                    string actVenta = ventFac.actualizarventaDevolucion((ventaTemp.idVenta), ventaTemp.idProducto, Convert.ToDateTime(fechaDevolucion), difDevo, difDevo * Convert.ToInt32(precioD));
 
                                     if (!string.IsNullOrEmpty(actStock))
                                     {
@@ -1478,11 +1504,13 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                             vendFac.actualizarVentasVend(rutLogin);
                             if (!string.IsNullOrEmpty(ventaTemp.idProducto))
                             {
-                                int difDevo = Convert.ToInt32(ventaTemp.cantidad) - Convert.ToInt32(ventaTemp.devolver);
+                                int cantidad = ToEntero(ventaTemp.cantidad, NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                                int devolver = ToEntero(ventaTemp.devolver, NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                                int difDevo = Convert.ToInt32(cantidad) - Convert.ToInt32(devolver);
                                 //MessageBox.Show("dif:" + difDevo.ToString());
                                 if (difDevo == 0)
                                 {//si cantidad devolucion es igul a cantidad venta, actualizar stock producto y borrar registro de venta
-                                    int sumStock = Convert.ToInt32(ventaTemp.devolver);
+                                    int sumStock = ToEntero(ventaTemp.devolver, NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
                                     ProductoFacade prodFac = new ProductoFacade();
                                     string actStock = prodFac.actualizarStockProductoDevolucion(ventaTemp.idProducto, sumStock);
                                     ventasFacade ventFac = new ventasFacade();
@@ -1510,30 +1538,38 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                 }
                                 else
                                 {//si cantidad devolucion no es igual a cantidad en venta , actualizar venta e stock producto
-                                    int sumStock = Convert.ToInt32(ventaTemp.devolver);
-                                    ProductoFacade prodFac = new ProductoFacade();
-                                    string actStock = prodFac.actualizarStockProductoDevolucion(ventaTemp.idProducto, sumStock);
-                                    ventasFacade ventFac = new ventasFacade();
-                                    string actVenta = ventFac.actualizarventaDevolucion(Convert.ToDouble(ventaTemp.idVenta), ventaTemp.idProducto, Convert.ToDateTime(fechaDevolucion), difDevo, difDevo * Convert.ToInt32(ventaTemp.precio));
+                                    try
+                                    {
+                                        int sumStock = ToEntero(ventaTemp.devolver, NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                                        ProductoFacade prodFac = new ProductoFacade();
+                                        string actStock = prodFac.actualizarStockProductoDevolucion(ventaTemp.idProducto, sumStock);
+                                        ventasFacade ventFac = new ventasFacade();
+                                        int precio = ToEntero(ventaTemp.precio.ToString(), NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                                        string actVenta = ventFac.actualizarventaDevolucion(ventaTemp.idVenta, ventaTemp.idProducto, Convert.ToDateTime(fechaDevolucion), difDevo, difDevo * Convert.ToInt32(precio));
 
-                                    if (!string.IsNullOrEmpty(actStock))
-                                    {
-                                        MessageBox.Show("Error al actualizar stock:" + actStock + "", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                                        if (!string.IsNullOrEmpty(actStock))
+                                        {
+                                            MessageBox.Show("Error al actualizar stock:" + actStock + "", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                                        }
+                                        else if (!string.IsNullOrEmpty(actVenta))
+                                        {
+                                            MessageBox.Show("Error al actualizar venta:" + actVenta + "", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                                        }
+                                        else
+                                        {
+                                            MessageBox.Show("Devolucion cambiada correctamente.", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Information);
+                                            btnPagar.Content = "Pagar";
+                                            ventaTemp = new VentaTemporal();
+                                            ltotalDevolucion.Visibility = Visibility.Hidden;
+                                            txtTotaldevolucion.Visibility = Visibility.Hidden;
+                                            lDiferencia.Visibility = Visibility.Hidden;
+                                            txtDiferencia.Visibility = Visibility.Hidden;
+                                            dineroDevolucion = 0;
+                                        }
                                     }
-                                    else if (!string.IsNullOrEmpty(actVenta))
+                                    catch (Exception ex)
                                     {
-                                        MessageBox.Show("Error al actualizar venta:" + actVenta + "", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
-                                    }
-                                    else
-                                    {
-                                        MessageBox.Show("Devolucion cambiada correctamente.", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Information);
-                                        btnPagar.Content = "Pagar";
-                                        ventaTemp = new VentaTemporal();
-                                        ltotalDevolucion.Visibility = Visibility.Hidden;
-                                        txtTotaldevolucion.Visibility = Visibility.Hidden;
-                                        lDiferencia.Visibility = Visibility.Hidden;
-                                        txtDiferencia.Visibility = Visibility.Hidden;
-                                        dineroDevolucion = 0;
+                                        MessageBox.Show("Error en devolucion:"+ex.ToString(),"Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
                                     }
 
                                 }

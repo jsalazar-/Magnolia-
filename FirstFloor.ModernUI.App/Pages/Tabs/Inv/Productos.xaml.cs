@@ -966,5 +966,21 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
             txtstock.Focus();
             txtstock.SelectionStart = txtstock.Text.Length;
         }
+
+        private void txtprecio_TextChanged_1(object sender, TextChangedEventArgs e)
+        {
+            int p = ToEntero(txtprecio.Text, NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+            txtprecio.Text = p.ToString("#,#", CultureInfo.InvariantCulture); ;
+            txtprecio.Focus();
+            txtprecio.SelectionStart = txtprecio.Text.Length;
+        }
+
+        private void txtstock_TextChanged_1(object sender, TextChangedEventArgs e)
+        {
+            int p = ToEntero(txtstock.Text, NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+            txtstock.Text = p.ToString("#,#", CultureInfo.InvariantCulture); ;
+            txtstock.Focus();
+            txtstock.SelectionStart = txtstock.Text.Length;
+        }
     }
 }

@@ -805,7 +805,7 @@ namespace FirstFloor.ModernUI.App.Control
 
         }
         //Detales de Venta para devolucion
-        public List<MVentas> getVentasForDevolucion(double id, string idProducto, DateTime fecha)
+        public List<MVentas> getVentasForDevolucion(int id, string idProducto, DateTime fecha)
         {
             MySqlDataReader rdr = null;
             List<MVentas> Listventas = new List<MVentas>();
@@ -846,7 +846,7 @@ namespace FirstFloor.ModernUI.App.Control
 
 
         }
-        public string actualizarventaDevolucion(double id, string idProducto, DateTime fecha, int cantidad, int total)
+        public string actualizarventaDevolucion(int id, string idProducto, DateTime fecha, int cantidad, int total)
         {
             //Boolean guardar = false;
             string res = "";

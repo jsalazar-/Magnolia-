@@ -16,6 +16,7 @@ using FirstFloor.ModernUI.App.Control;
 using FirstFloor.ModernUI.App.Modelo;
 using System.Collections.ObjectModel;
 using System.Collections;
+using System.Globalization;
 namespace FirstFloor.ModernUI.App.Pages.Tabs
 {
     /// <summary>
@@ -122,31 +123,46 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
             }
             else
             {
-
-
-                ventasFacade ventFac = new ventasFacade();
-                List<MVentas> listaVentaDevolucion = ventFac.getVentasForDevolucion(Convert.ToDouble(txtidventa.Text), txtidProducto.Text, Convert.ToDateTime(fechaventa.Text));
-                var rows = GetDataGridRows(datagridVentas);
-                if (listaVentaDevolucion.Count != 0)
+                int n;
+                bool isNumeric = int.TryParse(txtidventa.Text, out n);
+                if (isNumeric)
                 {
-                    venta.Clear();
-                    datagridVentas.ItemsSource = venta;
-                    //llenar datagridVenta para devoulcion
-                    foreach (var item in listaVentaDevolucion)
-                    {
-                        ProductoFacade prodFobtener = new ProductoFacade();
-                        Producto Prod = new Producto();
-                        Prod = prodFobtener.getProductosByID(item.idProducto);
-                        vtemp = new VentaTemporal(item.idVenta, item.idProducto, Prod.nombre, Prod.precio, item.cantidad.ToString(), "1", item.total.ToString());
-                        venta.Add(vtemp);
-                        cantidad = cantidad + 1;
-                        total = total + Convert.ToInt32(item.total);
 
-                        //ltotal.Content = Prod.precio;
-                        ltotal.Content = item.total;
-                        TextBoxValue.Text = item.cantidad.ToString();
+                    ventasFacade ventFac = new ventasFacade();
+                    List<MVentas> listaVentaDevolucion = ventFac.getVentasForDevolucion(Convert.ToInt32(txtidventa.Text), txtidProducto.Text, Convert.ToDateTime(fechaventa.Text));
+                    var rows = GetDataGridRows(datagridVentas);
+                    if (listaVentaDevolucion.Count != 0)
+                    {
+                        venta.Clear();
+                        datagridVentas.ItemsSource = venta;
+                        //llenar datagridVenta para devoulcion
+                        foreach (var item in listaVentaDevolucion)
+                        {
+                            ProductoFacade prodFobtener = new ProductoFacade();
+                            Producto Prod = new Producto();
+                            Prod = prodFobtener.getProductosByID(item.idProducto);
+                            int p = ToEntero(Prod.precio, NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                            string precio = p.ToString("#,#", CultureInfo.InvariantCulture);
+                            int t = ToEntero(item.total.ToString(), NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                            string total = t.ToString("#,#", CultureInfo.InvariantCulture); ;
+                            vtemp = new VentaTemporal(Convert.ToInt32(item.idVenta), item.idProducto, Prod.nombre, precio, item.cantidad.ToString(), "1", total.ToString());
+                            venta.Add(vtemp);
+                            cantidad = cantidad + 1;
+                            total = total + Convert.ToInt32(item.total);
+
+                            //ltotal.Content = Prod.precio;
+                            int st = ToEntero(item.total.ToString(), NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                            string stp = st.ToString("#,#", CultureInfo.InvariantCulture);
+
+                            ltotal.Content = stp;
+                            TextBoxValue.Text = item.cantidad.ToString();
+                        }
+                        datagridVentas.ItemsSource = venta;
                     }
-                    datagridVentas.ItemsSource = venta;
+                    else
+                    {
+                        MessageBox.Show("No se han encontrado ventas con estos datos.", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
                 }
                 else
                 {
@@ -246,7 +262,9 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                     int total = Convert.ToInt32(Prod.precio) * Convert.ToInt32(Valor);
                                     vtemporal[filaProd].devolver = Valor.ToString();
                                     //vtemporal[filaProd].total = total.ToString();
-                                    ltotal.Content = total.ToString();
+                                    int t = ToEntero(total.ToString(), NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                                    string totalF = t.ToString("#,#", CultureInfo.InvariantCulture); ;
+                                    ltotal.Content = totalF.ToString();
                                     datagridVentas.ItemsSource = null;
                                     datagridVentas.ItemsSource = vtemporal;
                                     datagridVentas.SelectedIndex = filaProd;
@@ -274,7 +292,8 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                 int numProducto = 0;
                 foreach (var i in venta)
                 {
-                    subtotal = subtotal + Convert.ToInt32(i.total);
+                    int p1 = ToEntero(i.total, NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                    subtotal = subtotal + Convert.ToInt32(p1);
                     //MessageBox.Show(i.total.ToString());
                     numProducto = numProducto + 1;
                 }
@@ -340,7 +359,9 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                     int total = Convert.ToInt32(Prod.precio) * Convert.ToInt32(Valor);
                                     vtemporal[filaProd].devolver = Valor.ToString();
                                     //vtemporal[filaProd].total = total.ToString();
-                                    ltotal.Content =  total.ToString();
+                                    int t = ToEntero(total.ToString(), NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                                    string totalF = t.ToString("#,#", CultureInfo.InvariantCulture); ;
+                                    ltotal.Content = totalF.ToString();
                                     datagridVentas.ItemsSource = null;
                                     datagridVentas.ItemsSource = vtemporal;
                                     datagridVentas.SelectedIndex = filaProd;
@@ -369,7 +390,10 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                 int numProducto = 0;
                 foreach (var i in venta)
                 {
-                    subtotal = subtotal + Convert.ToInt32(i.total);
+                    int p1 = ToEntero(i.total, NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                    subtotal = subtotal + Convert.ToInt32(p1);
+
+                    //subtotal = subtotal + Convert.ToInt32(i.total);
                     //MessageBox.Show(i.total.ToString());
                     numProducto = numProducto + 1;
                 }
@@ -431,7 +455,9 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                 int total = Convert.ToInt32(Prod.precio) * Convert.ToInt32(Valor);
                                 vtemporal[filaProd].devolver = Valor.ToString();
                                 //vtemporal[filaProd].total = total.ToString();
-                                ltotal.Content = total.ToString();
+                                int t = ToEntero(total.ToString(), NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                                string totalF = t.ToString("#,#", CultureInfo.InvariantCulture); ;
+                                ltotal.Content = totalF.ToString();
                                 datagridVentas.ItemsSource = null;
                                 datagridVentas.ItemsSource = vtemporal;
                                 datagridVentas.SelectedIndex = filaProd;
@@ -455,7 +481,8 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                 int numProducto = 0;
                 foreach (var i in venta)
                 {
-                    subtotal = subtotal + Convert.ToInt32(i.total);
+                    int p1 = ToEntero(i.total, NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                    subtotal = subtotal + Convert.ToInt32(p1);
                     //MessageBox.Show(i.total.ToString());
                     numProducto = numProducto + 1;
                 }
@@ -642,7 +669,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                     ProductoFacade prodFac = new ProductoFacade();
                                     string actStock = prodFac.actualizarStockProductoDevolucion(rv.idProducto, sumStock);
                                     ventasFacade ventFac = new ventasFacade();
-                                    string actVenta = ventFac.actualizarventaDevolucion(Convert.ToDouble(txtidventa.Text), txtidProducto.Text, Convert.ToDateTime(fechaventa.Text), difDevo, difDevo * Convert.ToInt32(rv.precio));
+                                    string actVenta = ventFac.actualizarventaDevolucion(Convert.ToInt32(txtidventa.Text), txtidProducto.Text, Convert.ToDateTime(fechaventa.Text), difDevo, difDevo * Convert.ToInt32(rv.precio));
 
                                     if (!string.IsNullOrEmpty(actStock))
                                     {
@@ -686,8 +713,10 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
         {
             if (datagridVentas.Items.Count > 0)
             {
-                string total = ltotal.Content.ToString();
-                cventas.txtTotaldevolucion.Text = total;
+                int total = ToEntero(ltotal.Content.ToString(), NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                string totalFormateado = total.ToString("#,#", CultureInfo.InvariantCulture);
+                
+                cventas.txtTotaldevolucion.Text = totalFormateado;
                 cventas.setVenta(vtemp);
                 cventas.setDineroDevolucion(Convert.ToInt32(total));
                 cventas.btnPagar.Content = "Cambiar";
@@ -717,6 +746,26 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
         private void Grid_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             this.DragMove();
+        }
+
+        private int ToEntero(string value, NumberStyles style, IFormatProvider provider)
+        {
+            try
+            {
+                int number = Int32.Parse(value, style, provider);
+                //Console.WriteLine("Converted '{0}' to {1}.", value, number);
+                return number;
+            }
+            catch (FormatException)
+            {
+                //MessageBox.Show("Unable to convert '{0}'.", value);
+                return 0;
+            }
+            catch (OverflowException)
+            {
+                MessageBox.Show("'{0}' Numero fuera de rango para tipo Int32.", value);
+                return 0;
+            }
         }
 
 

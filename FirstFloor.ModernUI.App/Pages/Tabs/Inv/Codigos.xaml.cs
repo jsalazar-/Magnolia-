@@ -21,6 +21,7 @@ using iTextSharp.text.pdf;
 using Microsoft.Win32;
 using System.Text.RegularExpressions;
 using FirstFloor.ModernUI.App.Pages.Tabs.Inv;
+using System.Globalization;
 
 
 namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
@@ -35,7 +36,18 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
         string url = "";
         string urlimagen = "";
         //Productos prod = new Productos();
-        string urlpdf = "";
+        string urlpdfNoAgrupada = "";
+        string urlpdf_1col = "";
+        string urlpdf_3col = "";
+        string urlpdf_pers = "";
+
+        string urlpdfGen_1col = "";
+        string urlpdfGen_3col = "";
+        string urlpdfGen_pers = "";
+
+        string urlpdfGenStock_1col = "";
+        string urlpdfGenStock_3col = "";
+        string urlpdfGenStock_pers = "";
         List<Producto> ListProductos = new List<Producto>();
         public Codigos()
         {
@@ -103,7 +115,11 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
             {
                 foreach (var item in ListProd)
                 {
-                    ListProductos.Add(new Producto { idProducto = item.idProducto, nombre = item.nombre, stock = item.stock, precio = item.precio, idCategoria = item.idCategoria });
+                    int p1 = ToEntero(item.precio, NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                    string m1 = p1.ToString("#,#", CultureInfo.InvariantCulture);
+                    int st = ToEntero(item.stock, NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                    string stp = st.ToString("#,#", CultureInfo.InvariantCulture);
+                    ListProductos.Add(new Producto { idProducto = item.idProducto, nombre = item.nombre, stock = stp, precio = m1, idCategoria = item.idCategoria });
                 }
 
                 //CollectionViewSource itemCollectionViewSource;
@@ -163,7 +179,12 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
             {
                 foreach (var item in listaProd)
                 {
-                    ListProductos.Add(new Producto { idProducto = item.idProducto, nombre = item.nombre, stock = item.stock, precio = item.precio, idCategoria = item.idCategoria });
+                    int p1 = ToEntero(item.precio, NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                    string m1 = p1.ToString("#,#", CultureInfo.InvariantCulture);
+                    int st = ToEntero(item.stock, NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                    string stp = st.ToString("#,#", CultureInfo.InvariantCulture);
+                    ListProductos.Add(new Producto { idProducto = item.idProducto, nombre = item.nombre, stock = stp, precio = m1, idCategoria = item.idCategoria });
+
                 }
 
                 /*CollectionViewSource itemCollectionViewSource;
@@ -229,64 +250,205 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
 
         private void btnGenerarCodBarra_Click(object sender, RoutedEventArgs e)
         {
-            // MessageBox.Show(urlimagen);
             if (chboxNoAgrupada.IsChecked == true)
             {
                 if (!string.IsNullOrEmpty(txtCodigoToImprimir.Text))
                 {
                     int numeEti = listBoxEtiquetas.SelectedIndex;
-
                     if (numeEti == 0)
                     {
                         try
                         {
-                            System.Windows.Forms.FolderBrowserDialog folderDialog = new System.Windows.Forms.FolderBrowserDialog();
-                            folderDialog.SelectedPath = "C:\\";
-                            folderDialog.Description = "Seleccionar carpeta donde se guardará el pdf con codigo generado";
-                            System.Windows.Forms.DialogResult result = folderDialog.ShowDialog();
-
-                            if (string.IsNullOrEmpty(urlpdf))
+                            if (string.IsNullOrEmpty(urlpdf_1col))
                             {
+                                System.Windows.Forms.FolderBrowserDialog folderDialog = new System.Windows.Forms.FolderBrowserDialog();
+                                folderDialog.SelectedPath = "C:\\";
+                                folderDialog.Description = "Seleccionar carpeta donde se guardará el pdf con codigo generado con 1 columna";
+                                System.Windows.Forms.DialogResult result = folderDialog.ShowDialog();
+
                                 if (result.ToString() == "OK")
                                 {
-                                    urlpdf = folderDialog.SelectedPath + "\\pdf";
-                                    if (!System.IO.Directory.Exists(urlpdf))
+                                    /*crear carpeta individuales solo una vez siguiente vez que genere codigo dejar en
+                                    carpeta individual ya creada
+                                    */
+                                    if (string.IsNullOrEmpty(urlpdfNoAgrupada))
                                     {
-                                        System.IO.Directory.CreateDirectory(urlpdf);
+                                        urlpdfNoAgrupada = folderDialog.SelectedPath + "\\CodigosIndividuales";
+                                        if (!System.IO.Directory.Exists(urlpdfNoAgrupada))
+                                        {
+                                            System.IO.Directory.CreateDirectory(urlpdfNoAgrupada);
+                                        }
+                                        urlpdf_1col = urlpdfNoAgrupada + "\\Codigo_1Columna";
+                                        if (!System.IO.Directory.Exists(urlpdf_1col))
+                                        {
+                                            System.IO.Directory.CreateDirectory(urlpdf_1col);
+                                        }
                                     }
+                                    else
+                                    {
+                                        urlpdf_1col = urlpdfNoAgrupada + "\\Codigo_1Columna";
+                                        if (!System.IO.Directory.Exists(urlpdf_1col))
+                                        {
+                                            System.IO.Directory.CreateDirectory(urlpdf_1col);
+                                        }
+                                    }
+
                                     txtcolumnas.IsEnabled = false;
                                     txtcolumnas.Text = "1";
                                     GenerarCodBarra(0);
-
                                 }
+
                             }
-                            else 
+                            else
                             {
-                                txtcolumnas.IsEnabled = false;
-                                txtcolumnas.Text = "1";
-                                GenerarCodBarra(0);
+
+                                if (!System.IO.Directory.Exists(urlpdf_1col))
+                                {
+                                    System.Windows.Forms.FolderBrowserDialog folderDialog = new System.Windows.Forms.FolderBrowserDialog();
+                                    folderDialog.SelectedPath = "C:\\";
+                                    folderDialog.Description = "Seleccionar carpeta donde se guardará el pdf con codigo generado con 1 columna";
+                                    System.Windows.Forms.DialogResult result = folderDialog.ShowDialog();
+
+                                    if (result.ToString() == "OK")
+                                    {
+                                        /*crear carpeta individuales solo una vez siguiente vez que genere codigo dejar en
+                                    carpeta individual ya creada
+                                    */
+                                        if (string.IsNullOrEmpty(urlpdfNoAgrupada))
+                                        {
+                                            urlpdfNoAgrupada = folderDialog.SelectedPath + "\\CodigosIndividuales";
+                                            if (!System.IO.Directory.Exists(urlpdfNoAgrupada))
+                                            {
+                                                System.IO.Directory.CreateDirectory(urlpdfNoAgrupada);
+                                            }
+                                            urlpdf_1col = urlpdfNoAgrupada + "\\Codigo_1Columna";
+                                            if (!System.IO.Directory.Exists(urlpdf_1col))
+                                            {
+                                                System.IO.Directory.CreateDirectory(urlpdf_1col);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            urlpdf_1col = urlpdfNoAgrupada + "\\Codigo_1Columna";
+                                            if (!System.IO.Directory.Exists(urlpdf_1col))
+                                            {
+                                                System.IO.Directory.CreateDirectory(urlpdf_1col);
+                                            }
+                                        }
+                                        txtcolumnas.IsEnabled = false;
+                                        txtcolumnas.Text = "1";
+                                        GenerarCodBarra(0);
+                                    }
+                                }
+                                else
+                                {
+                                    txtcolumnas.IsEnabled = false;
+                                    txtcolumnas.Text = "1";
+                                    GenerarCodBarra(0);
+                                }
 
                             }
-                        
-
-                           
 
                         }
                         catch (Exception ex)
                         {
                             MessageBox.Show("Error List etiqueta:" + ex.Message + "", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
                         }
-
                     }
                     else if (numeEti == 1)
                     {
                         try
                         {
-                            txtcolumnas.IsEnabled = false;
-                            txtcolumnas.Text = "3";
 
 
-                            GenerarCodBarra(1);
+                            if (string.IsNullOrEmpty(urlpdf_3col))
+
+                            {
+
+                                System.Windows.Forms.FolderBrowserDialog folderDialog = new System.Windows.Forms.FolderBrowserDialog();
+                                folderDialog.SelectedPath = "C:\\";
+                                folderDialog.Description = "Seleccionar carpeta donde se guardará el pdf con codigo generado con 3 columna";
+                                System.Windows.Forms.DialogResult result = folderDialog.ShowDialog();
+
+                                if (result.ToString() == "OK")
+                                {
+                                    /*crear carpeta individuales solo una vez siguiente vez que genere codigo dejar en
+                                    carpeta individual ya creada
+                                    */
+                                    if (string.IsNullOrEmpty(urlpdfNoAgrupada))
+                                    {
+                                        
+                                        urlpdfNoAgrupada = folderDialog.SelectedPath + "\\CodigosIndividuales";
+                                        if (!System.IO.Directory.Exists(urlpdfNoAgrupada))
+                                        {
+                                            System.IO.Directory.CreateDirectory(urlpdfNoAgrupada);
+                                        }
+                                        urlpdf_3col = urlpdfNoAgrupada + "\\Codigo_3Columna";
+                                        if (!System.IO.Directory.Exists(urlpdf_3col))
+                                        {
+                                            System.IO.Directory.CreateDirectory(urlpdf_3col);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        urlpdf_3col = urlpdfNoAgrupada + "\\Codigo_3Columna";
+                                        if (!System.IO.Directory.Exists(urlpdf_3col))
+                                        {
+                                            System.IO.Directory.CreateDirectory(urlpdf_3col);
+                                        }
+                                    }
+                                    txtcolumnas.IsEnabled = false;
+                                    txtcolumnas.Text = "3";
+                                    GenerarCodBarra(1);
+                                }
+
+                            }
+                            else
+                            {
+                                if (!System.IO.Directory.Exists(urlpdf_3col))
+                                {
+                                    System.Windows.Forms.FolderBrowserDialog folderDialog = new System.Windows.Forms.FolderBrowserDialog();
+                                    folderDialog.SelectedPath = "C:\\";
+                                    folderDialog.Description = "Seleccionar carpeta donde se guardará el pdf con codigo generado con 3 columna";
+                                    System.Windows.Forms.DialogResult result = folderDialog.ShowDialog();
+
+                                    if (result.ToString() == "OK")
+                                    {
+                                        if (string.IsNullOrEmpty(urlpdfNoAgrupada))
+                                        {
+
+                                            urlpdfNoAgrupada = folderDialog.SelectedPath + "\\CodigosIndividuales";
+                                            if (!System.IO.Directory.Exists(urlpdfNoAgrupada))
+                                            {
+                                                System.IO.Directory.CreateDirectory(urlpdfNoAgrupada);
+                                            }
+                                            urlpdf_3col = urlpdfNoAgrupada + "\\Codigo_3Columna";
+                                            if (!System.IO.Directory.Exists(urlpdf_3col))
+                                            {
+                                                System.IO.Directory.CreateDirectory(urlpdf_3col);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            urlpdf_3col = urlpdfNoAgrupada + "\\Codigo_3Columna";
+                                            if (!System.IO.Directory.Exists(urlpdf_3col))
+                                            {
+                                                System.IO.Directory.CreateDirectory(urlpdf_3col);
+                                            }
+                                        }
+                                        txtcolumnas.IsEnabled = false;
+                                        txtcolumnas.Text = "3";
+                                        GenerarCodBarra(1);
+                                    }
+                                }
+                                else
+                                {
+                                    txtcolumnas.IsEnabled = false;
+                                    txtcolumnas.Text = "3";
+                                    GenerarCodBarra(1);
+                                }
+
+                            }
 
                         }
                         catch (Exception ex)
@@ -299,9 +461,57 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
                     {//Etiqueta personalizada
                         try
                         {
-                            txtcolumnas.IsEnabled = true;
 
-                            GenerarCodBarra(2);
+                            if (string.IsNullOrEmpty(urlpdf_pers))
+
+                            {
+
+                                System.Windows.Forms.FolderBrowserDialog folderDialog = new System.Windows.Forms.FolderBrowserDialog();
+                                folderDialog.SelectedPath = "C:\\";
+                                folderDialog.Description = "Seleccionar carpeta donde se guardará el pdf con codigo generado personalizado";
+                                System.Windows.Forms.DialogResult result = folderDialog.ShowDialog();
+
+                                if (result.ToString() == "OK")
+                                {
+                                    urlpdf_pers = folderDialog.SelectedPath + "\\CodigosIndividuales\\Codigo_Personalizado";
+                                    if (!System.IO.Directory.Exists(urlpdf_pers))
+                                    {
+                                        System.IO.Directory.CreateDirectory(urlpdf_pers);
+                                    }
+                                    txtcolumnas.IsEnabled = false;
+                                    txtcolumnas.Text = "3";
+                                    GenerarCodBarra(1);
+                                }
+
+                            }
+                            else
+                            {
+                                if (!System.IO.Directory.Exists(urlpdf_pers))
+                                {
+                                    System.Windows.Forms.FolderBrowserDialog folderDialog = new System.Windows.Forms.FolderBrowserDialog();
+                                    folderDialog.SelectedPath = "C:\\";
+                                    folderDialog.Description = "Seleccionar carpeta donde se guardará el pdf con codigo generado personalizado";
+                                    System.Windows.Forms.DialogResult result = folderDialog.ShowDialog();
+
+                                    if (result.ToString() == "OK")
+                                    {
+                                        urlpdf_pers = folderDialog.SelectedPath + "\\CodigosIndividuales\\Codigo_Personalizado";
+                                        if (!System.IO.Directory.Exists(urlpdf_pers))
+                                        {
+                                            System.IO.Directory.CreateDirectory(urlpdf_pers);
+                                        }
+                                        txtcolumnas.IsEnabled = false;
+                                        GenerarCodBarra(2);
+                                    }
+                                }
+                                else
+                                {
+                                    txtcolumnas.IsEnabled = false;
+                                    GenerarCodBarra(2);
+                                }
+
+                            }
+
 
                         }
                         catch (Exception ex)
@@ -310,241 +520,566 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
                         }
 
                     }
+
+
                 }
                 else
                 {
                     MessageBox.Show("Ingresar codigo de producto para generar codigo de barra", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
 
-            }else if(chboxAgrupada.IsChecked==true)
+            }
+            else if (chboxAgrupada.IsChecked == true)
             {
                 //verificar si hay productos en bd
                 ProductoFacade prodFac = new ProductoFacade();
                 List<Producto> listaProd = prodFac.getProductos();
 
-                if (listaProd.Count>0)
+                if (listaProd.Count > 0)
                 {
                     int numeEti = listBoxEtiquetas.SelectedIndex;
 
                     if (numeEti == 0)
                     {
-
-                        System.Windows.Forms.FolderBrowserDialog folderDialog = new System.Windows.Forms.FolderBrowserDialog();
-                        folderDialog.SelectedPath = "C:\\";
-                        folderDialog.Description = "Seleccionar carpeta donde se guardarán los pdfs con codigos asociados a cada categoria";
-                        System.Windows.Forms.DialogResult result = folderDialog.ShowDialog();
-                        string urlG = "";
-                        if (result.ToString() == "OK")
+                        try
                         {
 
-                            try
+                            if (string.IsNullOrEmpty(urlpdfGen_1col))
+
                             {
-                                urlG = folderDialog.SelectedPath + "\\Codigos\\";
-                                if (!System.IO.Directory.Exists(urlG))
+                                System.Windows.Forms.FolderBrowserDialog folderDialog = new System.Windows.Forms.FolderBrowserDialog();
+                                folderDialog.SelectedPath = "C:\\";
+                                folderDialog.Description = "Seleccionar carpeta donde se guardarán los pdfs con codigos asociados a cada categoria";
+                                System.Windows.Forms.DialogResult result = folderDialog.ShowDialog();
+
+                                if (result.ToString() == "OK")
                                 {
-                                    System.IO.Directory.CreateDirectory(urlG);
-                                }
 
-                                txtcolumnas.IsEnabled = false;
-                                txtcolumnas.Text = "1";
-                                //crear x pdf con nombre de categorias en la url seleccionadad
-
-                                categoriaFacade catFac = new categoriaFacade();
-                                //obtener listCategoria que tengan productos
-                                List<Categoria> listCat = catFac.getCategoriaConProductosParaImprimirCodigos();
-                                //MessageBox.Show(listCat.Count.ToString());
-                                //RECORRER LISTA DE CATEGORIA Y OBTENER NOMBRE Y PRODUCTO ASOCIADO
-
-                                int W = Convert.ToInt32(this.txtAncho.Text.Trim());
-                                int H = Convert.ToInt32(this.txtAlto.Text.Trim());
-                                b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
-                                BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
-                                //b.LabelFont = new Font("Microsoft Sans Serif", 10, System.Drawing.FontStyle.Regular);
-                                try
-                                {
-                                    foreach (var cat in listCat)
+                                    urlpdfGen_1col = folderDialog.SelectedPath + "\\CodigosAgrupados\\Codigos_1Col\\";
+                                    if (!System.IO.Directory.Exists(urlpdfGen_1col))
                                     {
-                                        if (type != BarcodeLib.TYPE.UNSPECIFIED)
+                                        System.IO.Directory.CreateDirectory(urlpdfGen_1col);
+                                    }
+
+                                    txtcolumnas.IsEnabled = false;
+                                    txtcolumnas.Text = "1";
+                                    //crear x pdf con nombre de categorias en la url seleccionadad
+
+                                    categoriaFacade catFac = new categoriaFacade();
+                                    //obtener listCategoria que tengan productos
+                                    List<Categoria> listCat = catFac.getCategoriaConProductosParaImprimirCodigos();
+                                    //MessageBox.Show(listCat.Count.ToString());
+                                    //RECORRER LISTA DE CATEGORIA Y OBTENER NOMBRE Y PRODUCTO ASOCIADO
+
+                                    int W = Convert.ToInt32(this.txtAncho.Text.Trim());
+                                    int H = Convert.ToInt32(this.txtAlto.Text.Trim());
+                                    b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
+                                    BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
+                                    //b.LabelFont = new Font("Microsoft Sans Serif", 10, System.Drawing.FontStyle.Regular);
+                                    try
+                                    {
+                                        foreach (var cat in listCat)
                                         {
-                                            b.IncludeLabel = true;
-                                            b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
-                                            //b.AlternateLabel = "Texto";
-                                            List<Producto> listProductos = prodFac.getProductosBynombreCategoria(cat.nombreCategoria);
-
-
-                                            if (crearPdfCategorizado(urlG + cat.nombreCategoria, listProductos, 0))
+                                            if (type != BarcodeLib.TYPE.UNSPECIFIED)
                                             {
-                                                //Cargar Pdf en vista
-                                                //pdfViewer.LoadFile(urlpdf);
-                                            }
+                                                b.IncludeLabel = true;
+                                                b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
+                                                //b.AlternateLabel = "Texto";
+                                                List<Producto> listProductos = prodFac.getProductosBynombreCategoria(cat.nombreCategoria);
 
 
-                                        }//if
-                                    }//foreach
+                                                if (crearPdfCategorizado(urlpdfGen_1col + cat.nombreCategoria, listProductos, 0))
+                                                {
+                                                    //Cargar Pdf en vista
+                                                    //pdfViewer.LoadFile(urlpdf);
+                                                }
 
 
-                                }//try
-                                catch (Exception ex)
-                                {
-                                    MessageBox.Show("Error al crear CodigoBarra:" + ex.Message + "", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
-                                }//catch
+                                            }//if
+                                        }//foreach
+                                    }//try
+                                    catch (Exception ex)
+                                    {
+                                        MessageBox.Show("Error al crear CodigoBarra:" + ex.Message + "", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                                    }//catch
 
+                                }
                             }
-                            catch (Exception ex)
+                            else
                             {
-                                MessageBox.Show("Error List etiqueta:" + ex.Message + "", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                                if (!System.IO.Directory.Exists(urlpdfGen_1col))
+                                {
+                                    System.Windows.Forms.FolderBrowserDialog folderDialog = new System.Windows.Forms.FolderBrowserDialog();
+                                    folderDialog.SelectedPath = "C:\\";
+                                    folderDialog.Description = "Seleccionar carpeta donde se guardarán los pdfs con codigos asociados a cada categoria";
+                                    System.Windows.Forms.DialogResult result = folderDialog.ShowDialog();
+
+                                    if (result.ToString() == "OK")
+                                    {
+
+                                        urlpdfGen_1col = folderDialog.SelectedPath + "\\CodigosAgrupados\\Codigos_1Col\\";
+                                        if (!System.IO.Directory.Exists(urlpdfGen_1col))
+                                        {
+                                            System.IO.Directory.CreateDirectory(urlpdfGen_1col);
+                                        }
+
+                                        txtcolumnas.IsEnabled = false;
+                                        txtcolumnas.Text = "1";
+                                        //crear x pdf con nombre de categorias en la url seleccionadad
+
+                                        categoriaFacade catFac = new categoriaFacade();
+                                        //obtener listCategoria que tengan productos
+                                        List<Categoria> listCat = catFac.getCategoriaConProductosParaImprimirCodigos();
+                                        //MessageBox.Show(listCat.Count.ToString());
+                                        //RECORRER LISTA DE CATEGORIA Y OBTENER NOMBRE Y PRODUCTO ASOCIADO
+
+                                        int W = Convert.ToInt32(this.txtAncho.Text.Trim());
+                                        int H = Convert.ToInt32(this.txtAlto.Text.Trim());
+                                        b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
+                                        BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
+                                        //b.LabelFont = new Font("Microsoft Sans Serif", 10, System.Drawing.FontStyle.Regular);
+                                        try
+                                        {
+                                            foreach (var cat in listCat)
+                                            {
+                                                if (type != BarcodeLib.TYPE.UNSPECIFIED)
+                                                {
+                                                    b.IncludeLabel = true;
+                                                    b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
+                                                    //b.AlternateLabel = "Texto";
+                                                    List<Producto> listProductos = prodFac.getProductosBynombreCategoria(cat.nombreCategoria);
+
+
+                                                    if (crearPdfCategorizado(urlpdfGen_1col + cat.nombreCategoria, listProductos, 0))
+                                                    {
+                                                        //Cargar Pdf en vista
+                                                        //pdfViewer.LoadFile(urlpdf);
+                                                    }
+
+
+                                                }//if
+                                            }//foreach
+                                        }//try
+                                        catch (Exception ex)
+                                        {
+                                            MessageBox.Show("Error al crear CodigoBarra:" + ex.Message + "", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                                        }//catch
+
+                                    }
+                                }
+                                else
+                                {
+                                    txtcolumnas.IsEnabled = false;
+                                    txtcolumnas.Text = "1";
+                                    //crear x pdf con nombre de categorias en la url seleccionadad
+
+                                    categoriaFacade catFac = new categoriaFacade();
+                                    //obtener listCategoria que tengan productos
+                                    List<Categoria> listCat = catFac.getCategoriaConProductosParaImprimirCodigos();
+                                    //MessageBox.Show(listCat.Count.ToString());
+                                    //RECORRER LISTA DE CATEGORIA Y OBTENER NOMBRE Y PRODUCTO ASOCIADO
+
+                                    int W = Convert.ToInt32(this.txtAncho.Text.Trim());
+                                    int H = Convert.ToInt32(this.txtAlto.Text.Trim());
+                                    b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
+                                    BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
+                                    //b.LabelFont = new Font("Microsoft Sans Serif", 10, System.Drawing.FontStyle.Regular);
+                                    try
+                                    {
+                                        foreach (var cat in listCat)
+                                        {
+                                            if (type != BarcodeLib.TYPE.UNSPECIFIED)
+                                            {
+                                                b.IncludeLabel = true;
+                                                b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
+                                                //b.AlternateLabel = "Texto";
+                                                List<Producto> listProductos = prodFac.getProductosBynombreCategoria(cat.nombreCategoria);
+
+
+                                                if (crearPdfCategorizado(urlpdfGen_1col + cat.nombreCategoria, listProductos, 0))
+                                                {
+                                                    //Cargar Pdf en vista
+                                                    //pdfViewer.LoadFile(urlpdf);
+                                                }
+
+
+                                            }//if
+                                        }//foreach
+                                    }//try
+                                    catch (Exception ex)
+                                    {
+                                        MessageBox.Show("Error al crear CodigoBarra:" + ex.Message + "", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                                    }//catch
+                                }
                             }
-                            System.Diagnostics.Process.Start(@urlG);
                         }
-
-
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show("Error List etiqueta:" + ex.Message + "", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                        System.Diagnostics.Process.Start(@urlpdfGen_1col);
                     }
                     else if (numeEti == 1)
                     {
-                        
-                        //string folderpath = "";
-                        //FolderBrowserDialog fbd=new FolderBrowserDialog();
-                        //DialogResult dr=fbd.ShowDialog();
-
-                        System.Windows.Forms.FolderBrowserDialog folderDialog = new System.Windows.Forms.FolderBrowserDialog();
-                        folderDialog.SelectedPath = "C:\\";
-                        folderDialog.Description = "Seleccionar carpeta donde se guardarán los pdfs con codigos asociados a cada categoria";
-                        System.Windows.Forms.DialogResult result = folderDialog.ShowDialog();
-                        string urlG = "";
-                        if (result.ToString() == "OK")
+                        try
                         {
-                            
-                            try
+
+                            if (string.IsNullOrEmpty(urlpdfGen_3col))
+
                             {
-                                urlG = folderDialog.SelectedPath + "\\Codigos\\";
-                                if (!System.IO.Directory.Exists(urlG))
+                                System.Windows.Forms.FolderBrowserDialog folderDialog = new System.Windows.Forms.FolderBrowserDialog();
+                                folderDialog.SelectedPath = "C:\\";
+                                folderDialog.Description = "Seleccionar carpeta donde se guardarán los pdfs con codigos asociados a cada categoria";
+                                System.Windows.Forms.DialogResult result = folderDialog.ShowDialog();
+
+                                if (result.ToString() == "OK")
                                 {
-                                    System.IO.Directory.CreateDirectory(urlG);
-                                }
 
-                                txtcolumnas.IsEnabled = false;
-                                txtcolumnas.Text = "3";
-                                //crear x pdf con nombre de categorias en la url seleccionadad
-
-                                categoriaFacade catFac = new categoriaFacade();
-                                //obtener listCategoria que tengan productos
-                                List<Categoria> listCat = catFac.getCategoriaConProductosParaImprimirCodigos();
-                                //MessageBox.Show(listCat.Count.ToString());
-                                //RECORRER LISTA DE CATEGORIA Y OBTENER NOMBRE Y PRODUCTO ASOCIADO
-
-                                int W = Convert.ToInt32(this.txtAncho.Text.Trim());
-                                int H = Convert.ToInt32(this.txtAlto.Text.Trim());
-                                b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
-                                BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
-                                //b.LabelFont = new Font("Microsoft Sans Serif", 10, System.Drawing.FontStyle.Regular);
-                                try
-                                {
-                                    foreach (var cat in listCat)
+                                    urlpdfGen_3col = folderDialog.SelectedPath + "\\CodigosAgrupados\\Codigos_3Col\\";
+                                    if (!System.IO.Directory.Exists(urlpdfGen_3col))
                                     {
-                                        if (type != BarcodeLib.TYPE.UNSPECIFIED)
+                                        System.IO.Directory.CreateDirectory(urlpdfGen_3col);
+                                    }
+
+                                    txtcolumnas.IsEnabled = false;
+                                    txtcolumnas.Text = "3";
+                                    //crear x pdf con nombre de categorias en la url seleccionadad
+
+                                    categoriaFacade catFac = new categoriaFacade();
+                                    //obtener listCategoria que tengan productos
+                                    List<Categoria> listCat = catFac.getCategoriaConProductosParaImprimirCodigos();
+                                    //MessageBox.Show(listCat.Count.ToString());
+                                    //RECORRER LISTA DE CATEGORIA Y OBTENER NOMBRE Y PRODUCTO ASOCIADO
+
+                                    int W = Convert.ToInt32(this.txtAncho.Text.Trim());
+                                    int H = Convert.ToInt32(this.txtAlto.Text.Trim());
+                                    b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
+                                    BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
+                                    //b.LabelFont = new Font("Microsoft Sans Serif", 10, System.Drawing.FontStyle.Regular);
+                                    try
+                                    {
+                                        foreach (var cat in listCat)
                                         {
-                                            b.IncludeLabel = true;
-                                            b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
-                                            //b.AlternateLabel = "Texto";
-                                            List<Producto> listProductos = prodFac.getProductosBynombreCategoria(cat.nombreCategoria);
-
-                                            
-                                            if (crearPdfCategorizado(urlG + cat.nombreCategoria,listProductos, 1))
+                                            if (type != BarcodeLib.TYPE.UNSPECIFIED)
                                             {
-                                                //Cargar Pdf en vista
-                                                //pdfViewer.LoadFile(urlpdf);
-                                            }
+                                                b.IncludeLabel = true;
+                                                b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
+                                                //b.AlternateLabel = "Texto";
+                                                List<Producto> listProductos = prodFac.getProductosBynombreCategoria(cat.nombreCategoria);
 
 
-                                        }//if
-                                    }//foreach
-                                
+                                                if (crearPdfCategorizado(urlpdfGen_3col + cat.nombreCategoria, listProductos, 1))
+                                                {
+                                                    //Cargar Pdf en vista
+                                                    //pdfViewer.LoadFile(urlpdf);
+                                                }
 
-                                }//try
-                                catch (Exception ex)
-                                {
-                                    MessageBox.Show("Error al crear CodigoBarra:" + ex.Message + "", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
-                                }//catch
-                                
+
+                                            }//if
+                                        }//foreach
+                                    }//try
+                                    catch (Exception ex)
+                                    {
+                                        MessageBox.Show("Error al crear CodigoBarra:" + ex.Message + "", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                                    }//catch
+
+                                }
                             }
-                            catch (Exception ex)
+                            else
                             {
-                                MessageBox.Show("Error List etiqueta:" + ex.Message + "", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                                if (!System.IO.Directory.Exists(urlpdfGen_3col))
+                                {
+                                    System.Windows.Forms.FolderBrowserDialog folderDialog = new System.Windows.Forms.FolderBrowserDialog();
+                                    folderDialog.SelectedPath = "C:\\";
+                                    folderDialog.Description = "Seleccionar carpeta donde se guardarán los pdfs con codigos asociados a cada categoria";
+                                    System.Windows.Forms.DialogResult result = folderDialog.ShowDialog();
+
+                                    if (result.ToString() == "OK")
+                                    {
+
+                                        urlpdfGen_3col = folderDialog.SelectedPath + "\\CodigosAgrupados\\Codigos_3Col\\";
+                                        if (!System.IO.Directory.Exists(urlpdfGen_3col))
+                                        {
+                                            System.IO.Directory.CreateDirectory(urlpdfGen_3col);
+                                        }
+
+                                        txtcolumnas.IsEnabled = false;
+                                        txtcolumnas.Text = "3";
+                                        //crear x pdf con nombre de categorias en la url seleccionadad
+
+                                        categoriaFacade catFac = new categoriaFacade();
+                                        //obtener listCategoria que tengan productos
+                                        List<Categoria> listCat = catFac.getCategoriaConProductosParaImprimirCodigos();
+                                        //MessageBox.Show(listCat.Count.ToString());
+                                        //RECORRER LISTA DE CATEGORIA Y OBTENER NOMBRE Y PRODUCTO ASOCIADO
+
+                                        int W = Convert.ToInt32(this.txtAncho.Text.Trim());
+                                        int H = Convert.ToInt32(this.txtAlto.Text.Trim());
+                                        b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
+                                        BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
+                                        //b.LabelFont = new Font("Microsoft Sans Serif", 10, System.Drawing.FontStyle.Regular);
+                                        try
+                                        {
+                                            foreach (var cat in listCat)
+                                            {
+                                                if (type != BarcodeLib.TYPE.UNSPECIFIED)
+                                                {
+                                                    b.IncludeLabel = true;
+                                                    b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
+                                                    //b.AlternateLabel = "Texto";
+                                                    List<Producto> listProductos = prodFac.getProductosBynombreCategoria(cat.nombreCategoria);
+
+
+                                                    if (crearPdfCategorizado(urlpdfGen_3col + cat.nombreCategoria, listProductos, 1))
+                                                    {
+                                                        //Cargar Pdf en vista
+                                                        //pdfViewer.LoadFile(urlpdf);
+                                                    }
+
+
+                                                }//if
+                                            }//foreach
+                                        }//try
+                                        catch (Exception ex)
+                                        {
+                                            MessageBox.Show("Error al crear CodigoBarra:" + ex.Message + "", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                                        }//catch
+
+                                    }
+                                }
+                                else
+                                {
+                                    txtcolumnas.IsEnabled = false;
+                                    txtcolumnas.Text = "3";
+                                    //crear x pdf con nombre de categorias en la url seleccionadad
+
+                                    categoriaFacade catFac = new categoriaFacade();
+                                    //obtener listCategoria que tengan productos
+                                    List<Categoria> listCat = catFac.getCategoriaConProductosParaImprimirCodigos();
+                                    //MessageBox.Show(listCat.Count.ToString());
+                                    //RECORRER LISTA DE CATEGORIA Y OBTENER NOMBRE Y PRODUCTO ASOCIADO
+
+                                    int W = Convert.ToInt32(this.txtAncho.Text.Trim());
+                                    int H = Convert.ToInt32(this.txtAlto.Text.Trim());
+                                    b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
+                                    BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
+                                    //b.LabelFont = new Font("Microsoft Sans Serif", 10, System.Drawing.FontStyle.Regular);
+                                    try
+                                    {
+                                        foreach (var cat in listCat)
+                                        {
+                                            if (type != BarcodeLib.TYPE.UNSPECIFIED)
+                                            {
+                                                b.IncludeLabel = true;
+                                                b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
+                                                //b.AlternateLabel = "Texto";
+                                                List<Producto> listProductos = prodFac.getProductosBynombreCategoria(cat.nombreCategoria);
+
+
+                                                if (crearPdfCategorizado(urlpdfGen_3col + cat.nombreCategoria, listProductos, 1))
+                                                {
+                                                    //Cargar Pdf en vista
+                                                    //pdfViewer.LoadFile(urlpdf);
+                                                }
+
+
+                                            }//if
+                                        }//foreach
+                                    }//try
+                                    catch (Exception ex)
+                                    {
+                                        MessageBox.Show("Error al crear CodigoBarra:" + ex.Message + "", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                                    }//catch
+                                }
                             }
-                            System.Diagnostics.Process.Start(@urlG);
                         }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show("Error List etiqueta:" + ex.Message + "", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                        System.Diagnostics.Process.Start(@urlpdfGen_3col);
+
 
                     }
                     else if (numeEti == 2)
                     {//Etiqueta personalizada
 
-                        System.Windows.Forms.FolderBrowserDialog folderDialog = new System.Windows.Forms.FolderBrowserDialog();
-                        folderDialog.SelectedPath = "C:\\";
-                        folderDialog.Description = "Seleccionar carpeta donde se guardarán los pdfs con codigos asociados a cada categoria";
-                        System.Windows.Forms.DialogResult result = folderDialog.ShowDialog();
-                        string urlG = "";
-                        if (result.ToString() == "OK")
+                        try
                         {
 
-                            try
+                            if (string.IsNullOrEmpty(urlpdfGen_pers))
+
                             {
-                                urlG = folderDialog.SelectedPath + "\\Codigos\\";
-                                if (!System.IO.Directory.Exists(urlG))
+                                System.Windows.Forms.FolderBrowserDialog folderDialog = new System.Windows.Forms.FolderBrowserDialog();
+                                folderDialog.SelectedPath = "C:\\";
+                                folderDialog.Description = "Seleccionar carpeta donde se guardarán los pdfs con codigos personalizados asociados a cada categoria";
+                                System.Windows.Forms.DialogResult result = folderDialog.ShowDialog();
+
+                                if (result.ToString() == "OK")
                                 {
-                                    System.IO.Directory.CreateDirectory(urlG);
-                                }
 
-                                txtcolumnas.IsEnabled = true;
-                                
-                                //crear x pdf con nombre de categorias en la url seleccionadad
-
-                                categoriaFacade catFac = new categoriaFacade();
-                                //obtener listCategoria que tengan productos
-                                List<Categoria> listCat = catFac.getCategoriaConProductosParaImprimirCodigos();
-                                //MessageBox.Show(listCat.Count.ToString());
-                                //RECORRER LISTA DE CATEGORIA Y OBTENER NOMBRE Y PRODUCTO ASOCIADO
-
-                                int W = Convert.ToInt32(this.txtAncho.Text.Trim());
-                                int H = Convert.ToInt32(this.txtAlto.Text.Trim());
-                                b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
-                                BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
-                                //b.LabelFont = new Font("Microsoft Sans Serif", 10, System.Drawing.FontStyle.Regular);
-                                try
-                                {
-                                    foreach (var cat in listCat)
+                                    urlpdfGen_pers = folderDialog.SelectedPath + "\\CodigosAgrupados\\Codigos_personalizados\\";
+                                    if (!System.IO.Directory.Exists(urlpdfGen_pers))
                                     {
-                                        if (type != BarcodeLib.TYPE.UNSPECIFIED)
+                                        System.IO.Directory.CreateDirectory(urlpdfGen_pers);
+                                    }
+
+                                    txtcolumnas.IsEnabled = true;
+                                    //crear x pdf con nombre de categorias en la url seleccionadad
+
+                                    categoriaFacade catFac = new categoriaFacade();
+                                    //obtener listCategoria que tengan productos
+                                    List<Categoria> listCat = catFac.getCategoriaConProductosParaImprimirCodigos();
+                                    //MessageBox.Show(listCat.Count.ToString());
+                                    //RECORRER LISTA DE CATEGORIA Y OBTENER NOMBRE Y PRODUCTO ASOCIADO
+
+                                    int W = Convert.ToInt32(this.txtAncho.Text.Trim());
+                                    int H = Convert.ToInt32(this.txtAlto.Text.Trim());
+                                    b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
+                                    BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
+                                    //b.LabelFont = new Font("Microsoft Sans Serif", 10, System.Drawing.FontStyle.Regular);
+                                    try
+                                    {
+                                        foreach (var cat in listCat)
                                         {
-                                            b.IncludeLabel = true;
-                                            b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
-                                            //b.AlternateLabel = "Texto";
-                                            List<Producto> listProductos = prodFac.getProductosBynombreCategoria(cat.nombreCategoria);
-
-
-                                            if (crearPdfCategorizado(urlG + cat.nombreCategoria, listProductos, 2))
+                                            if (type != BarcodeLib.TYPE.UNSPECIFIED)
                                             {
-                                                //Cargar Pdf en vista
-                                                //pdfViewer.LoadFile(urlpdf);
-                                            }
+                                                b.IncludeLabel = true;
+                                                b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
+                                                //b.AlternateLabel = "Texto";
+                                                List<Producto> listProductos = prodFac.getProductosBynombreCategoria(cat.nombreCategoria);
 
 
-                                        }//if
-                                    }//foreach
+                                                if (crearPdfCategorizado(urlpdfGen_pers + cat.nombreCategoria, listProductos, 2))
+                                                {
+                                                    //Cargar Pdf en vista
+                                                    //pdfViewer.LoadFile(urlpdf);
+                                                }
 
 
-                                }//try
-                                catch (Exception ex)
-                                {
-                                    MessageBox.Show("Error al crear CodigoBarra:" + ex.Message + "", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
-                                }//catch
+                                            }//if
+                                        }//foreach
+                                    }//try
+                                    catch (Exception ex)
+                                    {
+                                        MessageBox.Show("Error al crear CodigoBarra:" + ex.Message + "", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                                    }//catch
 
+                                }
                             }
-                            catch (Exception ex)
+                            else
                             {
-                                MessageBox.Show("Error List etiqueta:" + ex.Message + "", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                                if (!System.IO.Directory.Exists(urlpdfGen_pers))
+                                {
+                                    System.Windows.Forms.FolderBrowserDialog folderDialog = new System.Windows.Forms.FolderBrowserDialog();
+                                    folderDialog.SelectedPath = "C:\\";
+                                    folderDialog.Description = "Seleccionar carpeta donde se guardarán los pdfs con codigos asociados a cada categoria";
+                                    System.Windows.Forms.DialogResult result = folderDialog.ShowDialog();
+
+                                    if (result.ToString() == "OK")
+                                    {
+
+                                        urlpdfGen_pers = folderDialog.SelectedPath + "\\CodigosAgrupados\\Codigos_personalizados\\";
+                                        if (!System.IO.Directory.Exists(urlpdfGen_pers))
+                                        {
+                                            System.IO.Directory.CreateDirectory(urlpdfGen_pers);
+                                        }
+
+                                        txtcolumnas.IsEnabled = true;
+                                        
+                                        //crear x pdf con nombre de categorias en la url seleccionadad
+
+                                        categoriaFacade catFac = new categoriaFacade();
+                                        //obtener listCategoria que tengan productos
+                                        List<Categoria> listCat = catFac.getCategoriaConProductosParaImprimirCodigos();
+                                        //MessageBox.Show(listCat.Count.ToString());
+                                        //RECORRER LISTA DE CATEGORIA Y OBTENER NOMBRE Y PRODUCTO ASOCIADO
+
+                                        int W = Convert.ToInt32(this.txtAncho.Text.Trim());
+                                        int H = Convert.ToInt32(this.txtAlto.Text.Trim());
+                                        b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
+                                        BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
+                                        //b.LabelFont = new Font("Microsoft Sans Serif", 10, System.Drawing.FontStyle.Regular);
+                                        try
+                                        {
+                                            foreach (var cat in listCat)
+                                            {
+                                                if (type != BarcodeLib.TYPE.UNSPECIFIED)
+                                                {
+                                                    b.IncludeLabel = true;
+                                                    b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
+                                                    //b.AlternateLabel = "Texto";
+                                                    List<Producto> listProductos = prodFac.getProductosBynombreCategoria(cat.nombreCategoria);
+
+
+                                                    if (crearPdfCategorizado(urlpdfGen_pers + cat.nombreCategoria, listProductos, 2))
+                                                    {
+                                                        //Cargar Pdf en vista
+                                                        //pdfViewer.LoadFile(urlpdf);
+                                                    }
+
+
+                                                }//if
+                                            }//foreach
+                                        }//try
+                                        catch (Exception ex)
+                                        {
+                                            MessageBox.Show("Error al crear CodigoBarra:" + ex.Message + "", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                                        }//catch
+
+                                    }
+                                }
+                                else
+                                {
+                                    txtcolumnas.IsEnabled = true;
+                                    
+                                    //crear x pdf con nombre de categorias en la url seleccionadad
+
+                                    categoriaFacade catFac = new categoriaFacade();
+                                    //obtener listCategoria que tengan productos
+                                    List<Categoria> listCat = catFac.getCategoriaConProductosParaImprimirCodigos();
+                                    //MessageBox.Show(listCat.Count.ToString());
+                                    //RECORRER LISTA DE CATEGORIA Y OBTENER NOMBRE Y PRODUCTO ASOCIADO
+
+                                    int W = Convert.ToInt32(this.txtAncho.Text.Trim());
+                                    int H = Convert.ToInt32(this.txtAlto.Text.Trim());
+                                    b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
+                                    BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
+                                    //b.LabelFont = new Font("Microsoft Sans Serif", 10, System.Drawing.FontStyle.Regular);
+                                    try
+                                    {
+                                        foreach (var cat in listCat)
+                                        {
+                                            if (type != BarcodeLib.TYPE.UNSPECIFIED)
+                                            {
+                                                b.IncludeLabel = true;
+                                                b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
+                                                //b.AlternateLabel = "Texto";
+                                                List<Producto> listProductos = prodFac.getProductosBynombreCategoria(cat.nombreCategoria);
+
+
+                                                if (crearPdfCategorizado(urlpdfGen_pers + cat.nombreCategoria, listProductos, 2))
+                                                {
+                                                    //Cargar Pdf en vista
+                                                    //pdfViewer.LoadFile(urlpdf);
+                                                }
+
+
+                                            }//if
+                                        }//foreach
+                                    }//try
+                                    catch (Exception ex)
+                                    {
+                                        MessageBox.Show("Error al crear CodigoBarra:" + ex.Message + "", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                                    }//catch
+                                }
                             }
-                            System.Diagnostics.Process.Start(@urlG);
                         }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show("Error List etiqueta:" + ex.Message + "", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                        System.Diagnostics.Process.Start(@urlpdfGen_pers);
 
 
                     }
@@ -555,7 +1090,580 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
                 }
 
             }
-        }
+            /*******************************************************/
+            /**Imprimir todos los codigos de productos segun el stock de cada uno agrupadas*/
+            /*******************************************************/
+            else if (chboxAgrupadaByStock.IsChecked == true)
+            {
+                //verificar si hay productos en bd
+                ProductoFacade prodFac = new ProductoFacade();
+                List<Producto> listaProd = prodFac.getProductos();
+
+                if (listaProd.Count > 0)
+                {
+                    int numeEti = listBoxEtiquetas.SelectedIndex;
+
+                    if (numeEti == 0)
+                    {//Etiqueta 1 columna
+
+                        try
+                        {
+
+                            if (string.IsNullOrEmpty(urlpdfGenStock_1col))
+
+                            {
+                                System.Windows.Forms.FolderBrowserDialog folderDialog = new System.Windows.Forms.FolderBrowserDialog();
+                                folderDialog.SelectedPath = "C:\\";
+                                folderDialog.Description = "Seleccionar carpeta donde se guardarán los pdfs con codigos con 1 columna asociados a cada categoria";
+                                System.Windows.Forms.DialogResult result = folderDialog.ShowDialog();
+
+                                if (result.ToString() == "OK")
+                                {
+
+                                    urlpdfGenStock_1col = folderDialog.SelectedPath + "\\CodigosAgrupadosSegunStock\\Codigos_1Columna\\";
+                                    if (!System.IO.Directory.Exists(urlpdfGenStock_1col))
+                                    {
+                                        System.IO.Directory.CreateDirectory(urlpdfGenStock_1col);
+                                    }
+
+                                    txtcolumnas.IsEnabled = false;
+                                    txtcolumnas.Text = "1";
+                                    //crear x pdf con nombre de categorias en la url seleccionadad
+
+                                    categoriaFacade catFac = new categoriaFacade();
+                                    //obtener listCategoria que tengan productos
+                                    List<Categoria> listCat = catFac.getCategoriaConProductosParaImprimirCodigos();
+                                    //MessageBox.Show(listCat.Count.ToString());
+                                    //RECORRER LISTA DE CATEGORIA Y OBTENER NOMBRE Y PRODUCTO ASOCIADO
+
+                                    int W = Convert.ToInt32(this.txtAncho.Text.Trim());
+                                    int H = Convert.ToInt32(this.txtAlto.Text.Trim());
+                                    b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
+                                    BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
+                                    //b.LabelFont = new Font("Microsoft Sans Serif", 10, System.Drawing.FontStyle.Regular);
+                                    try
+                                    {
+                                        foreach (var cat in listCat)
+                                        {
+                                            if (type != BarcodeLib.TYPE.UNSPECIFIED)
+                                            {
+                                                b.IncludeLabel = true;
+                                                b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
+                                                //b.AlternateLabel = "Texto";
+                                                List<Producto> listProductos = prodFac.getProductosBynombreCategoria(cat.nombreCategoria);
+
+
+                                                if (crearPdfCategorizado(urlpdfGenStock_1col + cat.nombreCategoria, listProductos, 0))
+                                                {
+                                                    //Cargar Pdf en vista
+                                                    //pdfViewer.LoadFile(urlpdf);
+                                                }
+
+
+                                            }//if
+                                        }//foreach
+                                    }//try
+                                    catch (Exception ex)
+                                    {
+                                        MessageBox.Show("Error al crear CodigoBarra:" + ex.Message + "", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                                    }//catch
+
+                                }
+                            }
+                            else
+                            {
+                                if (!System.IO.Directory.Exists(urlpdfGenStock_1col))
+                                {
+                                    System.Windows.Forms.FolderBrowserDialog folderDialog = new System.Windows.Forms.FolderBrowserDialog();
+                                    folderDialog.SelectedPath = "C:\\";
+                                    folderDialog.Description = "Seleccionar carpeta donde se guardarán los pdfs con codigos asociados a cada categoria";
+                                    System.Windows.Forms.DialogResult result = folderDialog.ShowDialog();
+
+                                    if (result.ToString() == "OK")
+                                    {
+
+                                        urlpdfGenStock_1col = folderDialog.SelectedPath + "\\CodigosAgrupadosSegunStock\\Codigos_1Columna\\";
+                                        if (!System.IO.Directory.Exists(urlpdfGenStock_1col))
+                                        {
+                                            System.IO.Directory.CreateDirectory(urlpdfGenStock_1col);
+                                        }
+
+                                        txtcolumnas.IsEnabled = false;
+                                        txtcolumnas.Text = "1";
+
+                                        //crear x pdf con nombre de categorias en la url seleccionadad
+
+                                        categoriaFacade catFac = new categoriaFacade();
+                                        //obtener listCategoria que tengan productos
+                                        List<Categoria> listCat = catFac.getCategoriaConProductosParaImprimirCodigos();
+                                        //MessageBox.Show(listCat.Count.ToString());
+                                        //RECORRER LISTA DE CATEGORIA Y OBTENER NOMBRE Y PRODUCTO ASOCIADO
+
+                                        int W = Convert.ToInt32(this.txtAncho.Text.Trim());
+                                        int H = Convert.ToInt32(this.txtAlto.Text.Trim());
+                                        b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
+                                        BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
+                                        //b.LabelFont = new Font("Microsoft Sans Serif", 10, System.Drawing.FontStyle.Regular);
+                                        try
+                                        {
+                                            foreach (var cat in listCat)
+                                            {
+                                                if (type != BarcodeLib.TYPE.UNSPECIFIED)
+                                                {
+                                                    b.IncludeLabel = true;
+                                                    b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
+                                                    //b.AlternateLabel = "Texto";
+                                                    List<Producto> listProductos = prodFac.getProductosBynombreCategoria(cat.nombreCategoria);
+
+
+                                                    if (crearPdfCategorizado(urlpdfGenStock_1col + cat.nombreCategoria, listProductos, 0))
+                                                    {
+                                                        //Cargar Pdf en vista
+                                                        //pdfViewer.LoadFile(urlpdf);
+                                                    }
+
+
+                                                }//if
+                                            }//foreach
+                                        }//try
+                                        catch (Exception ex)
+                                        {
+                                            MessageBox.Show("Error al crear CodigoBarra:" + ex.Message + "", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                                        }//catch
+
+                                    }
+                                }
+                                else
+                                {
+                                    txtcolumnas.IsEnabled = false;
+                                    txtcolumnas.Text = "1";
+
+                                    //crear x pdf con nombre de categorias en la url seleccionadad
+
+                                    categoriaFacade catFac = new categoriaFacade();
+                                    //obtener listCategoria que tengan productos
+                                    List<Categoria> listCat = catFac.getCategoriaConProductosParaImprimirCodigos();
+                                    //MessageBox.Show(listCat.Count.ToString());
+                                    //RECORRER LISTA DE CATEGORIA Y OBTENER NOMBRE Y PRODUCTO ASOCIADO
+
+                                    int W = Convert.ToInt32(this.txtAncho.Text.Trim());
+                                    int H = Convert.ToInt32(this.txtAlto.Text.Trim());
+                                    b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
+                                    BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
+                                    //b.LabelFont = new Font("Microsoft Sans Serif", 10, System.Drawing.FontStyle.Regular);
+                                    try
+                                    {
+                                        foreach (var cat in listCat)
+                                        {
+                                            if (type != BarcodeLib.TYPE.UNSPECIFIED)
+                                            {
+                                                b.IncludeLabel = true;
+                                                b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
+                                                //b.AlternateLabel = "Texto";
+                                                List<Producto> listProductos = prodFac.getProductosBynombreCategoria(cat.nombreCategoria);
+
+
+                                                if (crearPdfCategorizado(urlpdfGenStock_1col + cat.nombreCategoria, listProductos, 0))
+                                                {
+                                                    //Cargar Pdf en vista
+                                                    //pdfViewer.LoadFile(urlpdf);
+                                                }
+
+
+                                            }//if
+                                        }//foreach
+                                    }//try
+                                    catch (Exception ex)
+                                    {
+                                        MessageBox.Show("Error al crear CodigoBarra:" + ex.Message + "", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                                    }//catch
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show("Error List etiqueta:" + ex.Message + "", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                        System.Diagnostics.Process.Start(@urlpdfGenStock_1col);
+
+
+                    }
+                    else if (numeEti == 1)
+                    {
+
+
+                        try
+                        {
+
+                            if (string.IsNullOrEmpty(urlpdfGenStock_3col))
+
+                            {
+                                System.Windows.Forms.FolderBrowserDialog folderDialog = new System.Windows.Forms.FolderBrowserDialog();
+                                folderDialog.SelectedPath = "C:\\";
+                                folderDialog.Description = "Seleccionar carpeta donde se guardarán los pdfs con codigos para 3 columnas asociados a cada categoria";
+                                System.Windows.Forms.DialogResult result = folderDialog.ShowDialog();
+
+                                if (result.ToString() == "OK")
+                                {
+
+                                    urlpdfGenStock_3col = folderDialog.SelectedPath + "\\CodigosAgrupadosSegunStock\\Codigos_3Columna\\";
+                                    if (!System.IO.Directory.Exists(urlpdfGenStock_3col))
+                                    {
+                                        System.IO.Directory.CreateDirectory(urlpdfGenStock_3col);
+                                    }
+
+                                    txtcolumnas.IsEnabled = false;
+                                    txtcolumnas.Text = "3";
+                                    //crear x pdf con nombre de categorias en la url seleccionadad
+
+                                    categoriaFacade catFac = new categoriaFacade();
+                                    //obtener listCategoria que tengan productos
+                                    List<Categoria> listCat = catFac.getCategoriaConProductosParaImprimirCodigos();
+                                    //MessageBox.Show(listCat.Count.ToString());
+                                    //RECORRER LISTA DE CATEGORIA Y OBTENER NOMBRE Y PRODUCTO ASOCIADO
+
+                                    int W = Convert.ToInt32(this.txtAncho.Text.Trim());
+                                    int H = Convert.ToInt32(this.txtAlto.Text.Trim());
+                                    b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
+                                    BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
+                                    //b.LabelFont = new Font("Microsoft Sans Serif", 10, System.Drawing.FontStyle.Regular);
+                                    try
+                                    {
+                                        foreach (var cat in listCat)
+                                        {
+                                            if (type != BarcodeLib.TYPE.UNSPECIFIED)
+                                            {
+                                                b.IncludeLabel = true;
+                                                b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
+                                                //b.AlternateLabel = "Texto";
+                                                List<Producto> listProductos = prodFac.getProductosBynombreCategoria(cat.nombreCategoria);
+
+
+                                                if (crearPdfCategorizado(urlpdfGenStock_3col + cat.nombreCategoria, listProductos, 1))
+                                                {
+                                                    //Cargar Pdf en vista
+                                                    //pdfViewer.LoadFile(urlpdf);
+                                                }
+
+
+                                            }//if
+                                        }//foreach
+                                    }//try
+                                    catch (Exception ex)
+                                    {
+                                        MessageBox.Show("Error al crear CodigoBarra:" + ex.Message + "", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                                    }//catch
+
+                                }
+                            }
+                            else
+                            {
+                                if (!System.IO.Directory.Exists(urlpdfGenStock_3col))
+                                {
+                                    System.Windows.Forms.FolderBrowserDialog folderDialog = new System.Windows.Forms.FolderBrowserDialog();
+                                    folderDialog.SelectedPath = "C:\\";
+                                    folderDialog.Description = "Seleccionar carpeta donde se guardarán los pdfs con codigos asociados a cada categoria";
+                                    System.Windows.Forms.DialogResult result = folderDialog.ShowDialog();
+
+                                    if (result.ToString() == "OK")
+                                    {
+
+                                        urlpdfGenStock_3col = folderDialog.SelectedPath + "\\CodigosAgrupadosSegunStock\\Codigos_3Columna\\";
+                                        if (!System.IO.Directory.Exists(urlpdfGenStock_3col))
+                                        {
+                                            System.IO.Directory.CreateDirectory(urlpdfGenStock_3col);
+                                        }
+
+                                        txtcolumnas.IsEnabled = false;
+                                        txtcolumnas.Text = "3";
+                                        //crear x pdf con nombre de categorias en la url seleccionadad
+
+                                        categoriaFacade catFac = new categoriaFacade();
+                                        //obtener listCategoria que tengan productos
+                                        List<Categoria> listCat = catFac.getCategoriaConProductosParaImprimirCodigos();
+                                        //MessageBox.Show(listCat.Count.ToString());
+                                        //RECORRER LISTA DE CATEGORIA Y OBTENER NOMBRE Y PRODUCTO ASOCIADO
+
+                                        int W = Convert.ToInt32(this.txtAncho.Text.Trim());
+                                        int H = Convert.ToInt32(this.txtAlto.Text.Trim());
+                                        b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
+                                        BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
+                                        //b.LabelFont = new Font("Microsoft Sans Serif", 10, System.Drawing.FontStyle.Regular);
+                                        try
+                                        {
+                                            foreach (var cat in listCat)
+                                            {
+                                                if (type != BarcodeLib.TYPE.UNSPECIFIED)
+                                                {
+                                                    b.IncludeLabel = true;
+                                                    b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
+                                                    //b.AlternateLabel = "Texto";
+                                                    List<Producto> listProductos = prodFac.getProductosBynombreCategoria(cat.nombreCategoria);
+
+
+                                                    if (crearPdfCategorizado(urlpdfGenStock_3col + cat.nombreCategoria, listProductos, 1))
+                                                    {
+                                                        //Cargar Pdf en vista
+                                                        //pdfViewer.LoadFile(urlpdf);
+                                                    }
+
+
+                                                }//if
+                                            }//foreach
+                                        }//try
+                                        catch (Exception ex)
+                                        {
+                                            MessageBox.Show("Error al crear CodigoBarra:" + ex.Message + "", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                                        }//catch
+
+                                    }
+                                }
+                                else
+                                {
+                                    txtcolumnas.IsEnabled = false;
+                                    txtcolumnas.Text = "3";
+                                    //crear x pdf con nombre de categorias en la url seleccionadad
+
+                                    categoriaFacade catFac = new categoriaFacade();
+                                    //obtener listCategoria que tengan productos
+                                    List<Categoria> listCat = catFac.getCategoriaConProductosParaImprimirCodigos();
+                                    //MessageBox.Show(listCat.Count.ToString());
+                                    //RECORRER LISTA DE CATEGORIA Y OBTENER NOMBRE Y PRODUCTO ASOCIADO
+
+                                    int W = Convert.ToInt32(this.txtAncho.Text.Trim());
+                                    int H = Convert.ToInt32(this.txtAlto.Text.Trim());
+                                    b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
+                                    BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
+                                    //b.LabelFont = new Font("Microsoft Sans Serif", 10, System.Drawing.FontStyle.Regular);
+                                    try
+                                    {
+                                        foreach (var cat in listCat)
+                                        {
+                                            if (type != BarcodeLib.TYPE.UNSPECIFIED)
+                                            {
+                                                b.IncludeLabel = true;
+                                                b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
+                                                //b.AlternateLabel = "Texto";
+                                                List<Producto> listProductos = prodFac.getProductosBynombreCategoria(cat.nombreCategoria);
+
+
+                                                if (crearPdfCategorizado(urlpdfGenStock_3col + cat.nombreCategoria, listProductos, 1))
+                                                {
+                                                    //Cargar Pdf en vista
+                                                    //pdfViewer.LoadFile(urlpdf);
+                                                }
+
+
+                                            }//if
+                                        }//foreach
+                                    }//try
+                                    catch (Exception ex)
+                                    {
+                                        MessageBox.Show("Error al crear CodigoBarra:" + ex.Message + "", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                                    }//catch
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show("Error List etiqueta:" + ex.Message + "", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                        System.Diagnostics.Process.Start(@urlpdfGenStock_3col);
+
+
+
+                    }
+                    else if (numeEti == 2)
+                    {//Etiqueta personalizada
+
+                        try
+                        {
+
+                            if (string.IsNullOrEmpty(urlpdfGenStock_pers))
+
+                            {
+                                System.Windows.Forms.FolderBrowserDialog folderDialog = new System.Windows.Forms.FolderBrowserDialog();
+                                folderDialog.SelectedPath = "C:\\";
+                                folderDialog.Description = "Seleccionar carpeta donde se guardarán los pdfs con codigos personalizados asociados a cada categoria";
+                                System.Windows.Forms.DialogResult result = folderDialog.ShowDialog();
+
+                                if (result.ToString() == "OK")
+                                {
+
+                                    urlpdfGenStock_pers = folderDialog.SelectedPath + "\\CodigosAgrupadosSegunStock\\Codigos_personalizados\\";
+                                    if (!System.IO.Directory.Exists(urlpdfGenStock_pers))
+                                    {
+                                        System.IO.Directory.CreateDirectory(urlpdfGenStock_pers);
+                                    }
+
+                                    txtcolumnas.IsEnabled = true;
+                                    //crear x pdf con nombre de categorias en la url seleccionadad
+
+                                    categoriaFacade catFac = new categoriaFacade();
+                                    //obtener listCategoria que tengan productos
+                                    List<Categoria> listCat = catFac.getCategoriaConProductosParaImprimirCodigos();
+                                    //MessageBox.Show(listCat.Count.ToString());
+                                    //RECORRER LISTA DE CATEGORIA Y OBTENER NOMBRE Y PRODUCTO ASOCIADO
+
+                                    int W = Convert.ToInt32(this.txtAncho.Text.Trim());
+                                    int H = Convert.ToInt32(this.txtAlto.Text.Trim());
+                                    b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
+                                    BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
+                                    //b.LabelFont = new Font("Microsoft Sans Serif", 10, System.Drawing.FontStyle.Regular);
+                                    try
+                                    {
+                                        foreach (var cat in listCat)
+                                        {
+                                            if (type != BarcodeLib.TYPE.UNSPECIFIED)
+                                            {
+                                                b.IncludeLabel = true;
+                                                b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
+                                                //b.AlternateLabel = "Texto";
+                                                List<Producto> listProductos = prodFac.getProductosBynombreCategoria(cat.nombreCategoria);
+
+
+                                                if (crearPdfCategorizado(urlpdfGenStock_pers + cat.nombreCategoria, listProductos, 2))
+                                                {
+                                                    //Cargar Pdf en vista
+                                                    //pdfViewer.LoadFile(urlpdf);
+                                                }
+
+
+                                            }//if
+                                        }//foreach
+                                    }//try
+                                    catch (Exception ex)
+                                    {
+                                        MessageBox.Show("Error al crear CodigoBarra:" + ex.Message + "", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                                    }//catch
+
+                                }
+                            }
+                            else
+                            {
+                                if (!System.IO.Directory.Exists(urlpdfGenStock_pers))
+                                {
+                                    System.Windows.Forms.FolderBrowserDialog folderDialog = new System.Windows.Forms.FolderBrowserDialog();
+                                    folderDialog.SelectedPath = "C:\\";
+                                    folderDialog.Description = "Seleccionar carpeta donde se guardarán los pdfs con codigos personalizados asociados a cada categoria";
+                                    System.Windows.Forms.DialogResult result = folderDialog.ShowDialog();
+
+                                    if (result.ToString() == "OK")
+                                    {
+
+                                        urlpdfGenStock_pers = folderDialog.SelectedPath + "\\CodigosAgrupadosSegunStock\\Codigos_personalizados\\";
+                                        if (!System.IO.Directory.Exists(urlpdfGenStock_pers))
+                                        {
+                                            System.IO.Directory.CreateDirectory(urlpdfGenStock_pers);
+                                        }
+
+                                        txtcolumnas.IsEnabled = true;
+
+                                        //crear x pdf con nombre de categorias en la url seleccionadad
+
+                                        categoriaFacade catFac = new categoriaFacade();
+                                        //obtener listCategoria que tengan productos
+                                        List<Categoria> listCat = catFac.getCategoriaConProductosParaImprimirCodigos();
+                                        //MessageBox.Show(listCat.Count.ToString());
+                                        //RECORRER LISTA DE CATEGORIA Y OBTENER NOMBRE Y PRODUCTO ASOCIADO
+
+                                        int W = Convert.ToInt32(this.txtAncho.Text.Trim());
+                                        int H = Convert.ToInt32(this.txtAlto.Text.Trim());
+                                        b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
+                                        BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
+                                        //b.LabelFont = new Font("Microsoft Sans Serif", 10, System.Drawing.FontStyle.Regular);
+                                        try
+                                        {
+                                            foreach (var cat in listCat)
+                                            {
+                                                if (type != BarcodeLib.TYPE.UNSPECIFIED)
+                                                {
+                                                    b.IncludeLabel = true;
+                                                    b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
+                                                    //b.AlternateLabel = "Texto";
+                                                    List<Producto> listProductos = prodFac.getProductosBynombreCategoria(cat.nombreCategoria);
+
+
+                                                    if (crearPdfCategorizado(urlpdfGenStock_pers + cat.nombreCategoria, listProductos, 2))
+                                                    {
+                                                        //Cargar Pdf en vista
+                                                        //pdfViewer.LoadFile(urlpdf);
+                                                    }
+
+
+                                                }//if
+                                            }//foreach
+                                        }//try
+                                        catch (Exception ex)
+                                        {
+                                            MessageBox.Show("Error al crear CodigoBarra:" + ex.Message + "", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                                        }//catch
+
+                                    }
+                                }
+                                else
+                                {
+                                    txtcolumnas.IsEnabled = true;
+
+                                    //crear x pdf con nombre de categorias en la url seleccionadad
+
+                                    categoriaFacade catFac = new categoriaFacade();
+                                    //obtener listCategoria que tengan productos
+                                    List<Categoria> listCat = catFac.getCategoriaConProductosParaImprimirCodigos();
+                                    //MessageBox.Show(listCat.Count.ToString());
+                                    //RECORRER LISTA DE CATEGORIA Y OBTENER NOMBRE Y PRODUCTO ASOCIADO
+
+                                    int W = Convert.ToInt32(this.txtAncho.Text.Trim());
+                                    int H = Convert.ToInt32(this.txtAlto.Text.Trim());
+                                    b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
+                                    BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
+                                    //b.LabelFont = new Font("Microsoft Sans Serif", 10, System.Drawing.FontStyle.Regular);
+                                    try
+                                    {
+                                        foreach (var cat in listCat)
+                                        {
+                                            if (type != BarcodeLib.TYPE.UNSPECIFIED)
+                                            {
+                                                b.IncludeLabel = true;
+                                                b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
+                                                //b.AlternateLabel = "Texto";
+                                                List<Producto> listProductos = prodFac.getProductosBynombreCategoria(cat.nombreCategoria);
+
+
+                                                if (crearPdfCategorizado(urlpdfGenStock_pers + cat.nombreCategoria, listProductos, 2))
+                                                {
+                                                    //Cargar Pdf en vista
+                                                    //pdfViewer.LoadFile(urlpdf);
+                                                }
+
+
+                                            }//if
+                                        }//foreach
+                                    }//try
+                                    catch (Exception ex)
+                                    {
+                                        MessageBox.Show("Error al crear CodigoBarra:" + ex.Message + "", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                                    }//catch
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show("Error List etiqueta:" + ex.Message + "", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                        System.Diagnostics.Process.Start(@urlpdfGenStock_pers);
+
+
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("No hay productos registrados", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+            }
+
+
+            }
         private void GenerarCodBarra(int numEti)
         {
             int W = Convert.ToInt32(this.txtAncho.Text.Trim());
@@ -579,12 +1687,13 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
                     BarcodeLib.SaveTypes savetype = BarcodeLib.SaveTypes.PNG;
                     //b.IncludeLabel = true;
                     b.SaveImage(urlimagen, savetype);
-                    string resultado = crearPdf(numEti);
-                    if (!string.IsNullOrEmpty(resultado))
+                    string[] resultado = crearPdf(numEti,txtCodigoToImprimir.Text);
+                    if (!string.IsNullOrEmpty(resultado[0]))
                     {
                         //Cargar Pdf en vista
-                        System.Diagnostics.Process.Start(resultado);
-                        System.Diagnostics.Process.Start(urlpdf);
+                        System.Diagnostics.Process.Start(resultado[1]);
+                        System.Diagnostics.Process.Start(resultado[0]);
+                        
                         //pdfViewer.LoadFile(urlpdf);
                     }
 
@@ -598,65 +1707,79 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
             }//catch
         }
 
-
-        private bool crearPdfCategorizado(string urlpdfcategorizado,List<Producto> listProducto,int numEtiq)
+        private bool crearPdfCategorizadoSegunStock(string urlpdfcategorizado, List<Producto> listProducto, int numEtiq)
         {
             bool correct = false;
             try
             {
+                /*CREAR UNA CARPETA CON CADA CATEGORIA Y DENTRO DE ELLA UN PDF CON CADA CODIGO SEGUN EL STOCK QUE TENGA */
+
+                ProductoFacade prodFac = new ProductoFacade();
                 //Etiqueta para rollo con 1 columnas de mica
                 if (numEtiq == 0)
                 {
-                    // Creamos el documento con el tamaño de página tradicional
-                    Document doc = new Document(PageSize.LETTER);
-                    // Indicamos donde vamos a guardar el documento
-                    PdfWriter writer = PdfWriter.GetInstance(doc, new FileStream(urlpdfcategorizado+".pdf", FileMode.Create));
-                    doc.AddCreator("Magnolia");
-                    doc.Open();
-                    BaseFont serif = BaseFont.CreateFont(@"C:\Windows\Fonts\micross.ttf", "Identity-H", BaseFont.EMBEDDED);
-                    iTextSharp.text.Font _standardFont = new iTextSharp.text.Font(serif, Convert.ToInt32(txtTamanoFuente.Text), iTextSharp.text.Font.NORMAL, iTextSharp.text.Color.BLACK);
 
-                    int col = 1;
-                    int row = Convert.ToInt32(txtfila.Text);
-                    PdfPTable tblPrueba = new PdfPTable(col);
-                    doc.SetMargins(0f, 0f, 0f, 0f);
-                    tblPrueba.HorizontalAlignment = Element.ALIGN_CENTER;
-                    tblPrueba.WidthPercentage = 50;
+                    //Debe ser dinamico para cada categoria
+                    string urlCategoria = urlpdfcategorizado;
+                    if (!System.IO.Directory.Exists(urlCategoria))
+                    {
+                        System.IO.Directory.CreateDirectory(urlCategoria);
+                    }
+
+
+                    //debe ir bucle de columnas y fila 
+                    //mas nombre de cada producto como pdf
 
                     foreach (var prod in listProducto)
                     {
-                        int W = Convert.ToInt32(this.txtAncho.Text.Trim());
-                        int H = Convert.ToInt32(this.txtAlto.Text.Trim());
-                        b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
-                        BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
-                        b.IncludeLabel = true;
-                        b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
-                        b.Encode(type, prod.idProducto, W, H);
-                        BarcodeLib.SaveTypes savetype = BarcodeLib.SaveTypes.PNG;
-                        b.SaveImage(urlimagen, savetype);
+                        string urlCategoriabyProd = urlCategoria + "\\" + prod.nombre;
+                        Document doc = new Document(PageSize.LETTER);
+                        // Indicamos donde vamos a guardar el documento
+                        PdfWriter writer = PdfWriter.GetInstance(doc, new FileStream(urlCategoriabyProd + ".pdf", FileMode.Create));
+                        doc.AddCreator("Magnolia");
+                        doc.Open();
+                        BaseFont serif = BaseFont.CreateFont(@"C:\Windows\Fonts\micross.ttf", "Identity-H", BaseFont.EMBEDDED);
+                        iTextSharp.text.Font _standardFont = new iTextSharp.text.Font(serif, Convert.ToInt32(txtTamanoFuente.Text), iTextSharp.text.Font.NORMAL, iTextSharp.text.Color.BLACK);
 
-                        iTextSharp.text.Image imagen = iTextSharp.text.Image.GetInstance(urlimagen);
-                        imagen.BorderWidth = 0;
-                        imagen.Alignment = Element.ALIGN_CENTER;
-                        imagen.ScaleToFit(150f, 150f);
-
-                        string txtsobreBarra = "";
-                        if (chkGenerateLabel.IsChecked.Value)
-                        {
-                            MessageBox.Show(prod.nombre.Length.ToString() + ";" + prod.nombre);
-                            if (prod.nombre.Length > 25)
-                            {
-                                txtsobreBarra = prod.nombre.Substring(0, 25) + " $" + prod.precio;
-                            }
-                            else
-                            {
-                                txtsobreBarra = prod.nombre + " $" + prod.precio;
-                            }
-                            
-                        }
+                        int col = 1;
+                        int row = Convert.ToInt32(prod.stock);
+                        PdfPTable tblPrueba = new PdfPTable(col);
+                        doc.SetMargins(0f, 0f, 0f, 0f);
+                        tblPrueba.HorizontalAlignment = Element.ALIGN_CENTER;
+                        tblPrueba.WidthPercentage = 50;
 
                         for (int c = 0; c < col; c++)
                         {
+                            int W = Convert.ToInt32(this.txtAncho.Text.Trim());
+                            int H = Convert.ToInt32(this.txtAlto.Text.Trim());
+                            b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
+                            BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
+                            b.IncludeLabel = true;
+                            b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
+                            b.Encode(type, prod.idProducto, W, H);
+                            BarcodeLib.SaveTypes savetype = BarcodeLib.SaveTypes.PNG;
+                            b.SaveImage(urlimagen, savetype);
+
+                            iTextSharp.text.Image imagen = iTextSharp.text.Image.GetInstance(urlimagen);
+                            imagen.BorderWidth = 0;
+                            imagen.Alignment = Element.ALIGN_CENTER;
+                            imagen.ScaleToFit(150f, 150f);
+
+                            string txtsobreBarra = "";
+                            if (chkGenerateLabel.IsChecked.Value)
+                            {
+                                
+                                if (prod.nombre.Length > 25)
+                                {
+                                    txtsobreBarra = prod.nombre.Substring(0, 25) + " $" + prod.precio;
+                                }
+                                else
+                                {
+                                    txtsobreBarra = prod.nombre + " $" + prod.precio;
+                                }
+
+                            }
+
                             for (int f = 0; f < row; f++)
                             {
 
@@ -670,55 +1793,87 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
                                 clNombre.AddElement(imagen);
                                 tblPrueba.AddCell(clNombre);
                             }
+
+
                         }
+
+
+                        doc.Add(tblPrueba);
+                        doc.Close();
+                        writer.Close();
+
+
                     }
-                    doc.Add(tblPrueba);
-                    doc.Close();
-                    writer.Close();
-                    //Etiqueta para rollo con 3 columnas de  mica
                     correct = true;
+
                 }
+                //Etiqueta para rollo con 3 columnas de  mica
                 else if (numEtiq == 1)
                 {
-                    Document doc = new Document(PageSize.LETTER, 10f, 10f, 10f, 0f);
-                    PdfWriter writer = PdfWriter.GetInstance(doc, new FileStream(urlpdfcategorizado + ".pdf", FileMode.Create));
-                    doc.AddTitle("pdf");
-                    doc.AddCreator("Magnolia");
-                    doc.Open();
-                    doc.Add(Chunk.NEWLINE);
-                    BaseFont serif = BaseFont.CreateFont(@"C:\Windows\Fonts\micross.ttf", "Identity-H", BaseFont.EMBEDDED);
-                    iTextSharp.text.Font _standardFont = new iTextSharp.text.Font(serif, Convert.ToInt32(txtTamanoFuente.Text), iTextSharp.text.Font.NORMAL, iTextSharp.text.Color.BLACK);
-                    int col = 3;
-                    int row = Convert.ToInt32(txtfila.Text);
-                    PdfPTable tblPrueba = new PdfPTable(col);
-                    tblPrueba.WidthPercentage = 100;
+                    //Debe ser dinamico para cada categoria
+                    string urlCategoria = urlpdfcategorizado;
+                    if (!System.IO.Directory.Exists(urlCategoria))
+                    {
+                        System.IO.Directory.CreateDirectory(urlCategoria);
+                    }
 
+
+                    //debe ir bucle de columnas y fila 
+                    //mas nombre de cada producto como pdf
 
                     foreach (var prod in listProducto)
                     {
-                        int W = Convert.ToInt32(this.txtAncho.Text.Trim());
-                        int H = Convert.ToInt32(this.txtAlto.Text.Trim());
-                        b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
-                        BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
-                        b.IncludeLabel = true;
-                        b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
-                        b.Encode(type, prod.idProducto, W, H);
-                        BarcodeLib.SaveTypes savetype = BarcodeLib.SaveTypes.PNG;
-                        b.SaveImage(urlimagen, savetype);
+                        
+                        Document doc = new Document(PageSize.LETTER);
+                        string urlCategoriabyProd = urlCategoria + "\\" + prod.nombre;
+                        // Indicamos donde vamos a guardar el documento
+                        PdfWriter writer = PdfWriter.GetInstance(doc, new FileStream(urlCategoriabyProd + ".pdf", FileMode.Create));
+                        doc.AddCreator("Magnolia");
+                        doc.Open();
+                        BaseFont serif = BaseFont.CreateFont(@"C:\Windows\Fonts\micross.ttf", "Identity-H", BaseFont.EMBEDDED);
+                        iTextSharp.text.Font _standardFont = new iTextSharp.text.Font(serif, Convert.ToInt32(txtTamanoFuente.Text), iTextSharp.text.Font.NORMAL, iTextSharp.text.Color.BLACK);
 
-                        iTextSharp.text.Image imagen = iTextSharp.text.Image.GetInstance(urlimagen);
-                        imagen.BorderWidth = 0;
-                        imagen.Alignment = Element.ALIGN_CENTER;
-                        imagen.ScaleToFit(150f, 150f);
-
-                        string txtsobreBarra = "";
-                        if (chkGenerateLabel.IsChecked.Value)
-                        {
-                            txtsobreBarra = prod.nombre + " $"+ prod.precio;
-                        }
+                        int col = 3;
+                        double fk =(double) Convert.ToInt32(prod.stock) / 3;
+                        int row = Convert.ToInt32(Math.Ceiling(fk));
+                        //MessageBox.Show(fk.ToString()+":"+prod.stock + "/3=" + row.ToString());
+                        PdfPTable tblPrueba = new PdfPTable(col);
+                        doc.SetMargins(0f, 0f, 0f, 0f);
+                        tblPrueba.HorizontalAlignment = Element.ALIGN_CENTER;
+                        tblPrueba.WidthPercentage = 100;
 
                         for (int c = 0; c < col; c++)
                         {
+                            int W = Convert.ToInt32(this.txtAncho.Text.Trim());
+                            int H = Convert.ToInt32(this.txtAlto.Text.Trim());
+                            b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
+                            BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
+                            b.IncludeLabel = true;
+                            b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
+                            b.Encode(type, prod.idProducto, W, H);
+                            BarcodeLib.SaveTypes savetype = BarcodeLib.SaveTypes.PNG;
+                            b.SaveImage(urlimagen, savetype);
+
+                            iTextSharp.text.Image imagen = iTextSharp.text.Image.GetInstance(urlimagen);
+                            imagen.BorderWidth = 0;
+                            imagen.Alignment = Element.ALIGN_CENTER;
+                            imagen.ScaleToFit(150f, 150f);
+
+                            string txtsobreBarra = "";
+                            if (chkGenerateLabel.IsChecked.Value)
+                            {
+                                //MessageBox.Show(prod.nombre.Length.ToString() + ";" + prod.nombre);
+                                if (prod.nombre.Length > 25)
+                                {
+                                    txtsobreBarra = prod.nombre.Substring(0, 25) + " $" + prod.precio;
+                                }
+                                else
+                                {
+                                    txtsobreBarra = prod.nombre + " $" + prod.precio;
+                                }
+
+                            }
+
                             for (int f = 0; f < row; f++)
                             {
 
@@ -732,11 +1887,17 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
                                 clNombre.AddElement(imagen);
                                 tblPrueba.AddCell(clNombre);
                             }
+
+
                         }
+
+
+                        doc.Add(tblPrueba);
+                        doc.Close();
+                        writer.Close();
+
+
                     }
-                    doc.Add(tblPrueba);
-                    doc.Close();
-                    writer.Close();
                     correct = true;
                 }
                 else if (numEtiq == 2)
@@ -756,47 +1917,71 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
                                     float bottom = float.Parse(txtbotom.Text);
 
 
-                                    Document doc = new Document(PageSize.LETTER, left, right, top, bottom);
-                                    PdfWriter writer = PdfWriter.GetInstance(doc, new FileStream(urlpdfcategorizado + ".pdf", FileMode.Create));
-                                    doc.AddTitle("pdf");
-                                    doc.AddCreator("Magnolia");
-                                    doc.Open();
-                                    doc.Add(Chunk.NEWLINE);
-                                    //System.Drawing.Font f=  new System.Drawing.Font("Microsoft Sans Serif", 10, System.Drawing.FontStyle.Regular);
-                                    //FontFactory.GetFont("Microsoft Sans Serif", 10)
-                                    BaseFont serif = BaseFont.CreateFont(@"C:\Windows\Fonts\micross.ttf", "Identity-H", BaseFont.EMBEDDED);
-                                    iTextSharp.text.Font _standardFont = new iTextSharp.text.Font(serif, Convert.ToInt32(txtTamanoFuente.Text), iTextSharp.text.Font.NORMAL, iTextSharp.text.Color.BLACK);
+                                    
+                                    //Debe ser dinamico para cada categoria
+                                    string urlCategoria = urlpdfcategorizado;
+                                    if (!System.IO.Directory.Exists(urlCategoria))
+                                    {
+                                        System.IO.Directory.CreateDirectory(urlCategoria);
+                                    }
 
-                                    int col = Convert.ToInt32(txtcolumnas.Text); ;
-                                    int row = Convert.ToInt32(txtfila.Text);
-                                    PdfPTable tblPrueba = new PdfPTable(col);
-                                    tblPrueba.WidthPercentage = 100;
+
+                                    //debe ir bucle de columnas y fila 
+                                    //mas nombre de cada producto como pdf
 
                                     foreach (var prod in listProducto)
                                     {
-                                        int W = Convert.ToInt32(this.txtAncho.Text.Trim());
-                                        int H = Convert.ToInt32(this.txtAlto.Text.Trim());
-                                        b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
-                                        BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
-                                        b.IncludeLabel = true;
-                                        b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
-                                        b.Encode(type, prod.idProducto, W, H);
-                                        BarcodeLib.SaveTypes savetype = BarcodeLib.SaveTypes.PNG;
-                                        b.SaveImage(urlimagen, savetype);
 
-                                        iTextSharp.text.Image imagen = iTextSharp.text.Image.GetInstance(urlimagen);
-                                        imagen.BorderWidth = 0;
-                                        imagen.Alignment = Element.ALIGN_CENTER;
-                                        imagen.ScaleToFit(150f, 150f);
+                                        Document doc = new Document(PageSize.LETTER, left, right, top, bottom);
+                                        string urlCategoriabyProd = urlCategoria + "\\" + prod.nombre;
+                                        // Indicamos donde vamos a guardar el documento
+                                        PdfWriter writer = PdfWriter.GetInstance(doc, new FileStream(urlCategoriabyProd + ".pdf", FileMode.Create));
+                                        doc.AddCreator("Magnolia");
+                                        doc.Open();
+                                        BaseFont serif = BaseFont.CreateFont(@"C:\Windows\Fonts\micross.ttf", "Identity-H", BaseFont.EMBEDDED);
+                                        iTextSharp.text.Font _standardFont = new iTextSharp.text.Font(serif, Convert.ToInt32(txtTamanoFuente.Text), iTextSharp.text.Font.NORMAL, iTextSharp.text.Color.BLACK);
 
-                                        string txtsobreBarra = "";
-                                        if (chkGenerateLabel.IsChecked.Value)
-                                        {
-                                            txtsobreBarra = prod.nombre + " $" + prod.precio;
-                                        }
+                                        int col = Convert.ToInt32(txtcolumnas.Text);
+                                        double fk = (double)Convert.ToInt32(prod.stock) / col;
+                                        int row = Convert.ToInt32(Math.Ceiling(fk));
+                                       //MessageBox.Show(fk.ToString() + ":" + prod.stock + "/3=" + row.ToString());
+                                        PdfPTable tblPrueba = new PdfPTable(col);
+                                        doc.SetMargins(0f, 0f, 0f, 0f);
+                                        tblPrueba.HorizontalAlignment = Element.ALIGN_CENTER;
+                                        tblPrueba.WidthPercentage = 100;
 
                                         for (int c = 0; c < col; c++)
                                         {
+                                            int W = Convert.ToInt32(this.txtAncho.Text.Trim());
+                                            int H = Convert.ToInt32(this.txtAlto.Text.Trim());
+                                            b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
+                                            BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
+                                            b.IncludeLabel = true;
+                                            b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
+                                            b.Encode(type, prod.idProducto, W, H);
+                                            BarcodeLib.SaveTypes savetype = BarcodeLib.SaveTypes.PNG;
+                                            b.SaveImage(urlimagen, savetype);
+
+                                            iTextSharp.text.Image imagen = iTextSharp.text.Image.GetInstance(urlimagen);
+                                            imagen.BorderWidth = 0;
+                                            imagen.Alignment = Element.ALIGN_CENTER;
+                                            imagen.ScaleToFit(150f, 150f);
+
+                                            string txtsobreBarra = "";
+                                            if (chkGenerateLabel.IsChecked.Value)
+                                            {
+                                                //MessageBox.Show(prod.nombre.Length.ToString() + ";" + prod.nombre);
+                                                if (prod.nombre.Length > 25)
+                                                {
+                                                    txtsobreBarra = prod.nombre.Substring(0, 25) + " $" + prod.precio;
+                                                }
+                                                else
+                                                {
+                                                    txtsobreBarra = prod.nombre + " $" + prod.precio;
+                                                }
+
+                                            }
+
                                             for (int f = 0; f < row; f++)
                                             {
 
@@ -810,11 +1995,17 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
                                                 clNombre.AddElement(imagen);
                                                 tblPrueba.AddCell(clNombre);
                                             }
+
+
                                         }
+
+
+                                        doc.Add(tblPrueba);
+                                        doc.Close();
+                                        writer.Close();
+
+
                                     }
-                                    doc.Add(tblPrueba);
-                                    doc.Close();
-                                    writer.Close();
                                     correct = true;
 
                                 }
@@ -849,9 +2040,342 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
             }
             return correct;
         }
-        private string crearPdf(int numEtiq)
+
+        private bool crearPdfCategorizado(string urlpdfcategorizado,List<Producto> listProducto,int numEtiq)
         {
-            string correct = "";
+            bool correct = false;
+            try
+            {
+                //Etiqueta para rollo con 1 columnas de mica
+                if (numEtiq == 0)
+                {
+                    //Debe ser dinamico para cada categoria
+                    string urlCategoria = urlpdfcategorizado;
+                    if (!System.IO.Directory.Exists(urlCategoria))
+                    {
+                        System.IO.Directory.CreateDirectory(urlCategoria);
+                    }
+
+
+                    //debe ir bucle de columnas y fila 
+                    //mas nombre de cada producto como pdf
+
+                    foreach (var prod in listProducto)
+                    {
+
+                        Document doc = new Document(PageSize.LETTER);
+                        string urlCategoriabyProd = urlCategoria + "\\" + prod.nombre;
+                        // Indicamos donde vamos a guardar el documento
+                        PdfWriter writer = PdfWriter.GetInstance(doc, new FileStream(urlCategoriabyProd + ".pdf", FileMode.Create));
+                        doc.AddCreator("Magnolia");
+                        doc.Open();
+                        BaseFont serif = BaseFont.CreateFont(@"C:\Windows\Fonts\micross.ttf", "Identity-H", BaseFont.EMBEDDED);
+                        iTextSharp.text.Font _standardFont = new iTextSharp.text.Font(serif, Convert.ToInt32(txtTamanoFuente.Text), iTextSharp.text.Font.NORMAL, iTextSharp.text.Color.BLACK);
+
+                        int col = 1;
+                        
+                        int row = Convert.ToInt32(txtfila.Text);
+                        
+                        PdfPTable tblPrueba = new PdfPTable(col);
+                        doc.SetMargins(0f, 0f, 0f, 0f);
+                        tblPrueba.HorizontalAlignment = Element.ALIGN_CENTER;
+                        tblPrueba.WidthPercentage = 50;
+
+                        for (int c = 0; c < col; c++)
+                        {
+                            int W = Convert.ToInt32(this.txtAncho.Text.Trim());
+                            int H = Convert.ToInt32(this.txtAlto.Text.Trim());
+                            b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
+                            BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
+                            b.IncludeLabel = true;
+                            b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
+                            b.Encode(type, prod.idProducto, W, H);
+                            BarcodeLib.SaveTypes savetype = BarcodeLib.SaveTypes.PNG;
+                            b.SaveImage(urlimagen, savetype);
+
+                            iTextSharp.text.Image imagen = iTextSharp.text.Image.GetInstance(urlimagen);
+                            imagen.BorderWidth = 0;
+                            imagen.Alignment = Element.ALIGN_CENTER;
+                            imagen.ScaleToFit(150f, 150f);
+
+                            string txtsobreBarra = "";
+                            if (chkGenerateLabel.IsChecked.Value)
+                            {
+                                //MessageBox.Show(prod.nombre.Length.ToString() + ";" + prod.nombre);
+                                if (prod.nombre.Length > 25)
+                                {
+                                    txtsobreBarra = prod.nombre.Substring(0, 25) + " $" + prod.precio;
+                                }
+                                else
+                                {
+                                    txtsobreBarra = prod.nombre + " $" + prod.precio;
+                                }
+
+                            }
+
+                            for (int f = 0; f < row; f++)
+                            {
+
+                                PdfPCell clNombre = new PdfPCell { };
+                                clNombre.BorderWidth = 0;
+                                clNombre.Padding = 13;
+                                clNombre.HorizontalAlignment = Element.ALIGN_CENTER;
+                                iTextSharp.text.Paragraph textsobre = new iTextSharp.text.Paragraph(new Phrase(txtsobreBarra, _standardFont));
+                                textsobre.Alignment = 1;
+                                clNombre.AddElement(textsobre);
+                                clNombre.AddElement(imagen);
+                                tblPrueba.AddCell(clNombre);
+                            }
+
+
+                        }
+
+
+                        doc.Add(tblPrueba);
+                        doc.Close();
+                        writer.Close();
+
+
+                    }
+                    correct = true;
+                }
+                else if (numEtiq == 1)
+                {
+                    
+                    //Debe ser dinamico para cada categoria
+                    string urlCategoria = urlpdfcategorizado;
+                    if (!System.IO.Directory.Exists(urlCategoria))
+                    {
+                        System.IO.Directory.CreateDirectory(urlCategoria);
+                    }
+
+
+                    //debe ir bucle de columnas y fila 
+                    //mas nombre de cada producto como pdf
+
+                    foreach (var prod in listProducto)
+                    {
+
+                        Document doc = new Document(PageSize.LETTER, 10f, 10f, 10f, 0f);
+                        string urlCategoriabyProd = urlCategoria + "\\" + prod.nombre;
+                        // Indicamos donde vamos a guardar el documento
+                        PdfWriter writer = PdfWriter.GetInstance(doc, new FileStream(urlCategoriabyProd + ".pdf", FileMode.Create));
+                        doc.AddCreator("Magnolia");
+                        doc.Open();
+                        BaseFont serif = BaseFont.CreateFont(@"C:\Windows\Fonts\micross.ttf", "Identity-H", BaseFont.EMBEDDED);
+                        iTextSharp.text.Font _standardFont = new iTextSharp.text.Font(serif, Convert.ToInt32(txtTamanoFuente.Text), iTextSharp.text.Font.NORMAL, iTextSharp.text.Color.BLACK);
+
+                        int col = 3;
+                        double fk = (double)Convert.ToInt32(txtfila.Text) / col;
+                        int row = Convert.ToInt32(Math.Ceiling(fk));
+
+                        PdfPTable tblPrueba = new PdfPTable(col);
+                        doc.SetMargins(0f, 0f, 0f, 0f);
+                        tblPrueba.HorizontalAlignment = Element.ALIGN_CENTER;
+                        tblPrueba.WidthPercentage = 100;
+
+                        for (int c = 0; c < col; c++)
+                        {
+                            int W = Convert.ToInt32(this.txtAncho.Text.Trim());
+                            int H = Convert.ToInt32(this.txtAlto.Text.Trim());
+                            b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
+                            BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
+                            b.IncludeLabel = true;
+                            b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
+                            b.Encode(type, prod.idProducto, W, H);
+                            BarcodeLib.SaveTypes savetype = BarcodeLib.SaveTypes.PNG;
+                            b.SaveImage(urlimagen, savetype);
+
+                            iTextSharp.text.Image imagen = iTextSharp.text.Image.GetInstance(urlimagen);
+                            imagen.BorderWidth = 0;
+                            imagen.Alignment = Element.ALIGN_CENTER;
+                            imagen.ScaleToFit(150f, 150f);
+
+                            string txtsobreBarra = "";
+                            if (chkGenerateLabel.IsChecked.Value)
+                            {
+                               // MessageBox.Show(prod.nombre.Length.ToString() + ";" + prod.nombre);
+                                if (prod.nombre.Length > 25)
+                                {
+                                    txtsobreBarra = prod.nombre.Substring(0, 25) + " $" + prod.precio;
+                                }
+                                else
+                                {
+                                    txtsobreBarra = prod.nombre + " $" + prod.precio;
+                                }
+
+                            }
+
+                            for (int f = 0; f < row; f++)
+                            {
+
+                                PdfPCell clNombre = new PdfPCell { };
+                                clNombre.BorderWidth = 0;
+                                clNombre.Padding = 13;
+                                clNombre.HorizontalAlignment = Element.ALIGN_CENTER;
+                                iTextSharp.text.Paragraph textsobre = new iTextSharp.text.Paragraph(new Phrase(txtsobreBarra, _standardFont));
+                                textsobre.Alignment = 1;
+                                clNombre.AddElement(textsobre);
+                                clNombre.AddElement(imagen);
+                                tblPrueba.AddCell(clNombre);
+                            }
+
+
+                        }
+
+
+                        doc.Add(tblPrueba);
+                        doc.Close();
+                        writer.Close();
+
+
+                    }
+                    correct = true;
+                }
+                else if (numEtiq == 2)
+                {
+
+                    if (!string.IsNullOrEmpty(txtleft.Text))
+                    {
+                        if (!string.IsNullOrEmpty(txtright.Text))
+                        {
+                            if (!string.IsNullOrEmpty(txttop.Text))
+                            {
+                                if (!string.IsNullOrEmpty(txtbotom.Text))
+                                {
+                                    float left = float.Parse(txtleft.Text);
+                                    float right = float.Parse(txtright.Text);
+                                    float top = float.Parse(txttop.Text);
+                                    float bottom = float.Parse(txtbotom.Text);
+
+
+                                    //Debe ser dinamico para cada categoria
+                                    string urlCategoria = urlpdfcategorizado;
+                                    if (!System.IO.Directory.Exists(urlCategoria))
+                                    {
+                                        System.IO.Directory.CreateDirectory(urlCategoria);
+                                    }
+
+
+                                    //debe ir bucle de columnas y fila 
+                                    //mas nombre de cada producto como pdf
+
+                                    foreach (var prod in listProducto)
+                                    {
+
+                                        Document doc = new Document(PageSize.LETTER, left, right, top, bottom);
+                                        string urlCategoriabyProd = urlCategoria + "\\" + prod.nombre;
+                                        // Indicamos donde vamos a guardar el documento
+                                        PdfWriter writer = PdfWriter.GetInstance(doc, new FileStream(urlCategoriabyProd + ".pdf", FileMode.Create));
+                                        doc.AddCreator("Magnolia");
+                                        doc.Open();
+                                        BaseFont serif = BaseFont.CreateFont(@"C:\Windows\Fonts\micross.ttf", "Identity-H", BaseFont.EMBEDDED);
+                                        iTextSharp.text.Font _standardFont = new iTextSharp.text.Font(serif, Convert.ToInt32(txtTamanoFuente.Text), iTextSharp.text.Font.NORMAL, iTextSharp.text.Color.BLACK);
+
+                                        int col = Convert.ToInt32(txtcolumnas.Text);
+                                        double fk = (double)Convert.ToInt32(txtfila.Text) / col;
+                                        int row = Convert.ToInt32(Math.Ceiling(fk));
+                                        //MessageBox.Show(fk.ToString() + ":" + prod.stock + "/3=" + row.ToString());
+                                        PdfPTable tblPrueba = new PdfPTable(col);
+                                        doc.SetMargins(0f, 0f, 0f, 0f);
+                                        tblPrueba.HorizontalAlignment = Element.ALIGN_CENTER;
+                                        tblPrueba.WidthPercentage = 100;
+
+                                        for (int c = 0; c < col; c++)
+                                        {
+                                            int W = Convert.ToInt32(this.txtAncho.Text.Trim());
+                                            int H = Convert.ToInt32(this.txtAlto.Text.Trim());
+                                            b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
+                                            BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
+                                            b.IncludeLabel = true;
+                                            b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
+                                            b.Encode(type, prod.idProducto, W, H);
+                                            BarcodeLib.SaveTypes savetype = BarcodeLib.SaveTypes.PNG;
+                                            b.SaveImage(urlimagen, savetype);
+
+                                            iTextSharp.text.Image imagen = iTextSharp.text.Image.GetInstance(urlimagen);
+                                            imagen.BorderWidth = 0;
+                                            imagen.Alignment = Element.ALIGN_CENTER;
+                                            imagen.ScaleToFit(150f, 150f);
+
+                                            string txtsobreBarra = "";
+                                            if (chkGenerateLabel.IsChecked.Value)
+                                            {
+                                               // MessageBox.Show(prod.nombre.Length.ToString() + ";" + prod.nombre);
+                                                if (prod.nombre.Length > 25)
+                                                {
+                                                    txtsobreBarra = prod.nombre.Substring(0, 25) + " $" + prod.precio;
+                                                }
+                                                else
+                                                {
+                                                    txtsobreBarra = prod.nombre + " $" + prod.precio;
+                                                }
+
+                                            }
+
+                                            for (int f = 0; f < row; f++)
+                                            {
+
+                                                PdfPCell clNombre = new PdfPCell { };
+                                                clNombre.BorderWidth = 0;
+                                                clNombre.Padding = 13;
+                                                clNombre.HorizontalAlignment = Element.ALIGN_CENTER;
+                                                iTextSharp.text.Paragraph textsobre = new iTextSharp.text.Paragraph(new Phrase(txtsobreBarra, _standardFont));
+                                                textsobre.Alignment = 1;
+                                                clNombre.AddElement(textsobre);
+                                                clNombre.AddElement(imagen);
+                                                tblPrueba.AddCell(clNombre);
+                                            }
+
+
+                                        }
+
+
+                                        doc.Add(tblPrueba);
+                                        doc.Close();
+                                        writer.Close();
+
+
+                                    }
+                                    correct = true;
+
+                                }
+                                else
+                                {
+                                    MessageBox.Show("Ingresar margen: Abajo", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Warning);
+
+                                }
+                            }
+                            else
+                            {
+                                MessageBox.Show("Ingresar margen: Arriba", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Warning);
+
+                            }
+                        }
+                        else
+                        {
+                            MessageBox.Show("Ingresar margen:Derecho", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Warning);
+
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("Ingresar margen:Izquierdo", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
+
+                }
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show("Cerrar PDf(s) abiertos", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            return correct;
+        }
+        private string[] crearPdf(int numEtiq,string idcodigo)
+        {
+            string[] correct = new string[2] ;
+            ProductoFacade prodF = new ProductoFacade();
+            string nombreProd = prodF.getnombreProdbyidProd(idcodigo);
             try
             {
                 //Etiqueta para rollo con 1 columnas de mica
@@ -860,7 +2384,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
                     // Creamos el documento con el tamaño de página tradicional
                     Document doc = new Document(PageSize.LETTER);
                     // Indicamos donde vamos a guardar el documento
-                    PdfWriter writer = PdfWriter.GetInstance(doc, new FileStream(urlpdf+"//pdfGenerado1Col.pdf", FileMode.Create));
+                    PdfWriter writer = PdfWriter.GetInstance(doc, new FileStream(urlpdf_1col+"//"+nombreProd+".pdf", FileMode.Create));
                     
                     doc.AddCreator("Magnolia");
                     doc.Open();
@@ -901,14 +2425,17 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
                     }
                     doc.Add(tblPrueba);
                     doc.Close();
+                    //MessageBox.Show(urlpdf);
                     writer.Close();
                     //Etiqueta para rollo con 3 columnas de  mica
-                    correct = urlpdf + "//pdfGenerado1Col.pdf";
+                    
+                    correct[0] = urlpdf_1col + "//" + nombreProd + ".pdf";
+                    correct[1] = urlpdf_1col;
                 }
                 else if (numEtiq == 1)
                 {
                     Document doc = new Document(PageSize.LETTER, 10f, 10f, 10f, 0f);
-                    PdfWriter writer = PdfWriter.GetInstance(doc, new FileStream(urlpdf + "//pdfGenerado3Col.pdf", FileMode.Create));
+                    PdfWriter writer = PdfWriter.GetInstance(doc, new FileStream(urlpdf_3col + "//"+nombreProd+".pdf", FileMode.Create));
                     
                     doc.AddTitle("pdf");
                     doc.AddCreator("Magnolia");
@@ -917,7 +2444,8 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
                     BaseFont serif = BaseFont.CreateFont(@"C:\Windows\Fonts\micross.ttf", "Identity-H", BaseFont.EMBEDDED);
                     iTextSharp.text.Font _standardFont = new iTextSharp.text.Font(serif, Convert.ToInt32(txtTamanoFuente.Text), iTextSharp.text.Font.NORMAL, iTextSharp.text.Color.BLACK);
                     int col = 3;
-                    int row = Convert.ToInt32(txtfila.Text);
+                    double fk = (double)Convert.ToInt32(txtfila.Text) / col;
+                    int row = Convert.ToInt32(Math.Ceiling(fk));
                     PdfPTable tblPrueba = new PdfPTable(col);
                     tblPrueba.WidthPercentage = 100;
                     iTextSharp.text.Image imagen = iTextSharp.text.Image.GetInstance(urlimagen);
@@ -950,7 +2478,9 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
                     doc.Add(tblPrueba);
                     doc.Close();
                     writer.Close();
-                    correct = urlpdf + "//pdfGenerado3Col.pdf";
+                    //MessageBox.Show(urlpdf);
+                    correct[0] = urlpdf_3col + "//" + nombreProd + ".pdf";
+                    correct[1] = urlpdf_3col;
                 }
                 else if (numEtiq == 2)
                 {
@@ -970,8 +2500,8 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
 
 
                                     Document doc = new Document(PageSize.LETTER, left, right, top, bottom);
-                                    PdfWriter writer = PdfWriter.GetInstance(doc, new FileStream(urlpdf + "//pdfGeneradoPersonalizado.pdf", FileMode.Create));
-                                    correct = urlpdf + "//pdfGeneradoPersonalizado.pdf";
+                                    PdfWriter writer = PdfWriter.GetInstance(doc, new FileStream(urlpdf_pers + "//"+nombreProd+".pdf", FileMode.Create));
+                                    //correct = urlpdf_pers + "//" + nombreProd + ".pdf";
                                     doc.AddTitle("pdf");
                                     doc.AddCreator("Magnolia");
                                     doc.Open();
@@ -982,7 +2512,8 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
                                     iTextSharp.text.Font _standardFont = new iTextSharp.text.Font(serif, Convert.ToInt32(txtTamanoFuente.Text), iTextSharp.text.Font.NORMAL, iTextSharp.text.Color.BLACK);
 
                                     int col = Convert.ToInt32(txtcolumnas.Text); ;
-                                    int row = Convert.ToInt32(txtfila.Text);
+                                    double fk = (double)Convert.ToInt32(txtfila.Text) / col;
+                                    int row = Convert.ToInt32(Math.Ceiling(fk));
                                     PdfPTable tblPrueba = new PdfPTable(col);
                                     tblPrueba.WidthPercentage = 100;
 
@@ -1015,7 +2546,8 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
                                     doc.Add(tblPrueba);
                                     doc.Close();
                                     writer.Close();
-                                    correct = urlpdf + "//pdfGeneradoPersonalizado.pdf";
+                                    correct[0] = urlpdf_pers + "//" + nombreProd + ".pdf";
+                                    correct[1] = urlpdf_pers;
 
                                 }
                                 else
@@ -1045,7 +2577,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
             }
             catch (Exception e)
             {
-                MessageBox.Show("Cerrar PDf(s) abiertos", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Cerrar PDf(s) abiertos:"+e.ToString(), "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             return correct;
         }
@@ -1153,7 +2685,12 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
             {
                 foreach (var item in listaProd)
                 {
-                    ListProductos.Add(new Producto { idProducto = item.idProducto, nombre = item.nombre, stock = item.stock, precioReal = item.precioReal, precio = item.precio, idCategoria = item.idCategoria, fecha = item.fecha });
+                    int p1 = ToEntero(item.precio, NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                    string m1 = p1.ToString("#,#", CultureInfo.InvariantCulture);
+                    int st = ToEntero(item.stock, NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                    string stp = st.ToString("#,#", CultureInfo.InvariantCulture);
+                    ListProductos.Add(new Producto { idProducto = item.idProducto, nombre = item.nombre, stock = stp, precio = m1, idCategoria = item.idCategoria });
+
                 }
 
                 datagridProducto_Imprimir.ItemsSource = ListProductos;
@@ -1179,7 +2716,12 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
             {
                 foreach (var item in listaProd)
                 {
-                    ListProductos.Add(new Producto { idProducto = item.idProducto, nombre = item.nombre, stock = item.stock, precioReal = item.precioReal, precio = item.precio, idCategoria = item.idCategoria, fecha = item.fecha });
+                    int p1 = ToEntero(item.precio, NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                    string m1 = p1.ToString("#,#", CultureInfo.InvariantCulture);
+                    int st = ToEntero(item.stock, NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                    string stp = st.ToString("#,#", CultureInfo.InvariantCulture);
+                    ListProductos.Add(new Producto { idProducto = item.idProducto, nombre = item.nombre, stock = stp, precio = m1, idCategoria = item.idCategoria });
+
                 }
 
                 datagridProducto_Imprimir.ItemsSource = ListProductos;
@@ -1214,6 +2756,25 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
             }
             //MessageBox.Show("buscar");
 
+        }
+        private int ToEntero(string value, NumberStyles style, IFormatProvider provider)
+        {
+            try
+            {
+                int number = Int32.Parse(value, style, provider);
+                //Console.WriteLine("Converted '{0}' to {1}.", value, number);
+                return number;
+            }
+            catch (FormatException)
+            {
+                //MessageBox.Show("Unable to convert '{0}'.", value);
+                return 0;
+            }
+            catch (OverflowException)
+            {
+                MessageBox.Show("'{0}' Numero fuera de rango para tipo Int32.", value);
+                return 0;
+            }
         }
     }
 }

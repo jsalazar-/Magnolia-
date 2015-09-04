@@ -8,7 +8,7 @@ namespace FirstFloor.ModernUI.App.Modelo
 {
     public class VentaTemporal
     {
-        public Int64 idVenta { get; set; }
+        public int idVenta { get; set; }
          public string idProducto { get; set; }
         public string nombre { get; set; }
         public string precio { get; set; }
@@ -18,7 +18,7 @@ namespace FirstFloor.ModernUI.App.Modelo
         public VentaTemporal() { 
 
         }
-        public VentaTemporal(Int64 idVenta, string idProducto, string nombre,  string precio,string cantidad, string total)
+        public VentaTemporal(int idVenta, string idProducto, string nombre,  string precio,string cantidad, string total)
         {
             this.idVenta = idVenta;
             this.idProducto = idProducto;
@@ -29,7 +29,7 @@ namespace FirstFloor.ModernUI.App.Modelo
 
         
         }
-        public VentaTemporal(Int64 idVenta, string idProducto, string nombre, string precio, string cantidad,string devuelta, string total)
+        public VentaTemporal(int idVenta, string idProducto, string nombre, string precio, string cantidad,string devuelta, string total)
         {
             this.idVenta = idVenta;
             this.idProducto = idProducto;

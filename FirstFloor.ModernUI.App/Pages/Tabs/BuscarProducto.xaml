@@ -32,7 +32,6 @@
                 <DataGridTextColumn Binding="{Binding idProducto}" Header="Id" Width="50" />
                 <DataGridTextColumn Binding="{Binding nombre}" Header="Nombre" Width="100" />
                 <DataGridTextColumn Binding="{Binding stock}" Header="Stock" Width="50" />
-                <DataGridTextColumn Binding="{Binding precioReal}" Header="Precio Real" Width="80" />
                 <DataGridTextColumn Binding="{Binding precio}" Header="Precio Venta" Width="80" />
                 <DataGridTextColumn Binding="{Binding fecha, StringFormat={}{0:dd/MM/yyyy}}" Header="Fecha Modificación" Width="160" />
             </DataGrid.Columns>

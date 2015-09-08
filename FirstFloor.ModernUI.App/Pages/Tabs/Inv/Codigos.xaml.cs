@@ -1153,7 +1153,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
                                                 List<Producto> listProductos = prodFac.getProductosBynombreCategoria(cat.nombreCategoria);
 
 
-                                                if (crearPdfCategorizado(urlpdfGenStock_1col + cat.nombreCategoria, listProductos, 0))
+                                                if (crearPdfCategorizadoSegunStock(urlpdfGenStock_1col + cat.nombreCategoria, listProductos, 0))
                                                 {
                                                     //Cargar Pdf en vista
                                                     //pdfViewer.LoadFile(urlpdf);
@@ -1216,7 +1216,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
                                                     List<Producto> listProductos = prodFac.getProductosBynombreCategoria(cat.nombreCategoria);
 
 
-                                                    if (crearPdfCategorizado(urlpdfGenStock_1col + cat.nombreCategoria, listProductos, 0))
+                                                    if (crearPdfCategorizadoSegunStock(urlpdfGenStock_1col + cat.nombreCategoria, listProductos, 0))
                                                     {
                                                         //Cargar Pdf en vista
                                                         //pdfViewer.LoadFile(urlpdf);
@@ -1263,7 +1263,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
                                                 List<Producto> listProductos = prodFac.getProductosBynombreCategoria(cat.nombreCategoria);
 
 
-                                                if (crearPdfCategorizado(urlpdfGenStock_1col + cat.nombreCategoria, listProductos, 0))
+                                                if (crearPdfCategorizadoSegunStock(urlpdfGenStock_1col + cat.nombreCategoria, listProductos, 0))
                                                 {
                                                     //Cargar Pdf en vista
                                                     //pdfViewer.LoadFile(urlpdf);
@@ -1339,7 +1339,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
                                                 List<Producto> listProductos = prodFac.getProductosBynombreCategoria(cat.nombreCategoria);
 
 
-                                                if (crearPdfCategorizado(urlpdfGenStock_3col + cat.nombreCategoria, listProductos, 1))
+                                                if (crearPdfCategorizadoSegunStock(urlpdfGenStock_3col + cat.nombreCategoria, listProductos, 1))
                                                 {
                                                     //Cargar Pdf en vista
                                                     //pdfViewer.LoadFile(urlpdf);
@@ -1401,7 +1401,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
                                                     List<Producto> listProductos = prodFac.getProductosBynombreCategoria(cat.nombreCategoria);
 
 
-                                                    if (crearPdfCategorizado(urlpdfGenStock_3col + cat.nombreCategoria, listProductos, 1))
+                                                    if (crearPdfCategorizadoSegunStock(urlpdfGenStock_3col + cat.nombreCategoria, listProductos, 1))
                                                     {
                                                         //Cargar Pdf en vista
                                                         //pdfViewer.LoadFile(urlpdf);
@@ -1447,7 +1447,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
                                                 List<Producto> listProductos = prodFac.getProductosBynombreCategoria(cat.nombreCategoria);
 
 
-                                                if (crearPdfCategorizado(urlpdfGenStock_3col + cat.nombreCategoria, listProductos, 1))
+                                                if (crearPdfCategorizadoSegunStock(urlpdfGenStock_3col + cat.nombreCategoria, listProductos, 1))
                                                 {
                                                     //Cargar Pdf en vista
                                                     //pdfViewer.LoadFile(urlpdf);
@@ -1522,7 +1522,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
                                                 List<Producto> listProductos = prodFac.getProductosBynombreCategoria(cat.nombreCategoria);
 
 
-                                                if (crearPdfCategorizado(urlpdfGenStock_pers + cat.nombreCategoria, listProductos, 2))
+                                                if (crearPdfCategorizadoSegunStock(urlpdfGenStock_pers + cat.nombreCategoria, listProductos, 2))
                                                 {
                                                     //Cargar Pdf en vista
                                                     //pdfViewer.LoadFile(urlpdf);
@@ -1584,7 +1584,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
                                                     List<Producto> listProductos = prodFac.getProductosBynombreCategoria(cat.nombreCategoria);
 
 
-                                                    if (crearPdfCategorizado(urlpdfGenStock_pers + cat.nombreCategoria, listProductos, 2))
+                                                    if (crearPdfCategorizadoSegunStock(urlpdfGenStock_pers + cat.nombreCategoria, listProductos, 2))
                                                     {
                                                         //Cargar Pdf en vista
                                                         //pdfViewer.LoadFile(urlpdf);
@@ -1630,7 +1630,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
                                                 List<Producto> listProductos = prodFac.getProductosBynombreCategoria(cat.nombreCategoria);
 
 
-                                                if (crearPdfCategorizado(urlpdfGenStock_pers + cat.nombreCategoria, listProductos, 2))
+                                                if (crearPdfCategorizadoSegunStock(urlpdfGenStock_pers + cat.nombreCategoria, listProductos, 2))
                                                 {
                                                     //Cargar Pdf en vista
                                                     //pdfViewer.LoadFile(urlpdf);
@@ -2033,12 +2033,14 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
                     }
 
                 }
+                return correct;
             }
             catch (Exception e)
             {
-                MessageBox.Show("Cerrar PDf(s) abiertos", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Cerrar PDf abierto:" + e.Message, "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                return correct;
             }
-            return correct;
+            
         }
 
         private bool crearPdfCategorizado(string urlpdfcategorizado,List<Producto> listProducto,int numEtiq)
@@ -2363,13 +2365,14 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
                         MessageBox.Show("Ingresar margen:Izquierdo", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
 
-                }
+                }return correct;
             }
             catch (Exception e)
             {
-                MessageBox.Show("Cerrar PDf(s) abiertos", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Cerrar PDf abierto:" + e.Message, "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                return correct;
             }
-            return correct;
+            
         }
         private string[] crearPdf(int numEtiq,string idcodigo)
         {
@@ -2573,13 +2576,14 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
                         MessageBox.Show("Ingresar margen:Izquierdo", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
 
-                }
+                }   return correct;
             }
             catch (Exception e)
             {
-                MessageBox.Show("Cerrar PDf(s) abiertos:"+e.ToString(), "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Cerrar PDf abierto:" + e.Message, "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                return correct;
             }
-            return correct;
+         
         }
         private void ListBoxEtiquetas_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {

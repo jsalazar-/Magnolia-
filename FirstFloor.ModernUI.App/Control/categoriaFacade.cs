@@ -263,40 +263,11 @@ namespace FirstFloor.ModernUI.App.Control
             string consulta = "";
             try
             {
-             
+                DateTime fechaactual = DateTime.Now.Date;
                 categoriaFacade ctf = new categoriaFacade();
                 string idCategoria = ctf.getCategoriaByNombre(nombreCategoria);
-                consulta = "UPDATE categoria set nombreCategoria=\"" + nombreCategoriaN + "\"" + " WHERE idCategoria =\"" + idCategoria + "\";";
+                consulta = "UPDATE categoria set nombreCategoria=\"" + nombreCategoriaN + "\"" + ",fecha=@fecha WHERE idCategoria =\"" + idCategoria + "\";";
                 MySqlCommand cmdCategoria = new MySqlCommand(consulta, getconexion.getConexion());
-                
-                MySqlDataReader MyReader2 = cmdCategoria.ExecuteReader();
-
-            }
-            catch (Exception e)
-            {
-                res = e.ToString();
-                getconexion.CerrarConexion();
-            }
-            finally
-            {
-                getconexion.CerrarConexion();
-            }
-
-
-            return res;
-        }
-
-        public string actualizarFechaCategoria(string idcat)
-        {
-            string res = "";
-            string consulta = "";
-            try
-            {
-                DateTime fechaactual = DateTime.Now.Date;
-              
-                consulta = "UPDATE categoria set fecha=@fecha WHERE idCategoria =@idcategoria;";
-                MySqlCommand cmdCategoria = new MySqlCommand(consulta, getconexion.getConexion());
-                cmdCategoria.Parameters.AddWithValue("@idcategoria", idcat);
                 cmdCategoria.Parameters.AddWithValue("@fecha", fechaactual);
                 MySqlDataReader MyReader2 = cmdCategoria.ExecuteReader();
 
@@ -314,6 +285,8 @@ namespace FirstFloor.ModernUI.App.Control
 
             return res;
         }
+
+
     }
 
 }

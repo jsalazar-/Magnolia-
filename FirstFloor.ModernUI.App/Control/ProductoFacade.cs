@@ -663,7 +663,7 @@ namespace FirstFloor.ModernUI.App.Control
                 comm.Parameters.AddWithValue("@idProdAnt", idProdAnt);
 
                 MySqlDataReader MyReader2 = comm.ExecuteReader();
-                ctf.actualizarFechaCategoria(idCategoria);
+
             }
             catch (Exception e)
             {

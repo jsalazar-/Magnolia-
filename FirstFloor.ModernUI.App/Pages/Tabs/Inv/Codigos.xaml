@@ -78,7 +78,7 @@
                             Code 128</ComboBoxItem>
                     </ComboBox>
                     <ListBox Name="listBoxEtiquetas" Margin="21,200,717,83" SelectedIndex="0" SelectionChanged="ListBoxEtiquetas_SelectionChanged" Grid.Row="1" >
-                        <ListBoxItem >
+                        <ListBoxItem Selected="ListBoxItem_Selected" >
 
                             <StackPanel Orientation="Horizontal">
                                 <Border BorderBrush="#00000000" BorderThickness="1" Height="30" Width="35">
@@ -126,7 +126,7 @@
 
                     <RadioButton Name="chboxNoAgrupada" Content="Imprimir individual" HorizontalAlignment="Left" Margin="292,254,0,0" Grid.Row="1" VerticalAlignment="Top" IsChecked="True" Checked="chboxNoAgrupada_Checked" Foreground="#FF6A6767" Height="29" Width="137"/>
                     <RadioButton  Name="chboxAgrupada" Content="Imprimir Agrupadas(Cantidad personalizada) " HorizontalAlignment="Left" Margin="292,283,0,0" Grid.Row="1" VerticalAlignment="Top" Checked="chboxAgrupada_Checked" Foreground="#FF6A6767" Height="29" Width="280"/>
-                    <RadioButton  x:Name="chboxAgrupadaByStock" Content="Imprimir Agrupadas (Cantidad segun Stock)" HorizontalAlignment="Left" Margin="292,310,0,0" Grid.Row="1" VerticalAlignment="Top" Checked="chboxAgrupada_Checked" Foreground="#FF6A6767" Height="29" Width="320"/>
+                    <RadioButton  x:Name="chboxAgrupadaByStock" Content="Imprimir Agrupadas (Cantidad segun Stock)" HorizontalAlignment="Left" Margin="292,310,0,0" Grid.Row="1" VerticalAlignment="Top"  Foreground="#FF6A6767" Height="29" Width="320" Checked="chboxAgrupadaByStock_Checked"/>
 
                 </Grid>
             </TabItem>

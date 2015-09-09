@@ -2587,72 +2587,15 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
         }
         private void ListBoxEtiquetas_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            int numeEti = listBoxEtiquetas.SelectedIndex;
 
-            if (numeEti == 0)
+            try
             {
-                try
-                {
-                    txtcolumnas.Text = "1";
-                    txtcolumnas.IsEnabled = false;
-                    txttop.IsEnabled = false;
-                    txtbotom.IsEnabled = false;
-                    txtleft.IsEnabled = false;
-                    txtright.IsEnabled = false;
-                    txttop.Text = "0";
-                    txtbotom.Text = "0";
-                    txtleft.Text = "0";
-                    txtright.Text = "0";
-                }
-                catch (Exception ex)
-                {
-                    //MessageBox.Show("Error List etiqueta:" + ex.Message);
-                }
-
+                Restricciongenerarcodbarra();
             }
-            else if (numeEti == 1)
+            catch (Exception ex)
             {
-                try
-                {
-                    txtcolumnas.Text = "3";
-                    txtcolumnas.IsEnabled = false;
-                    txttop.IsEnabled = false;
-                    txtbotom.IsEnabled = false;
-                    txtleft.IsEnabled = false;
-                    txtright.IsEnabled = false;
-                    txttop.Text = "10";
-                    txtbotom.Text = "0";
-                    txtleft.Text = "10";
-                    txtright.Text = "10";
-                }
-                catch (Exception ex)
-                {
-                    //MessageBox.Show("Error List etiqueta:" + ex.Message);
-                }
-
+                //MessageBox.Show("Error List etiqueta:" + ex.Message);
             }
-            else if (numeEti == 2)
-            {
-                try
-                {
-                    txtcolumnas.IsEnabled = true;
-                    txttop.IsEnabled = true;
-                    txtbotom.IsEnabled = true;
-                    txtleft.IsEnabled = true;
-                    txtright.IsEnabled = true;
-                    txttop.Text = "0";
-                    txtbotom.Text = "0";
-                    txtleft.Text = "0";
-                    txtright.Text = "0";
-
-                }
-                catch (Exception ex)
-                {
-                    //MessageBox.Show("Error List etiqueta:" + ex.Message);
-                }
-
-            }
-
         }
 
         private void btnrecargar_Click(object sender, RoutedEventArgs e)
@@ -2663,17 +2606,39 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
 
         private void chboxNoAgrupada_Checked(object sender, RoutedEventArgs e)
         {
-            txtCodigoToImprimir.IsEnabled = true;
-            txtSobreBarra.Text = "";
-            txtSobreBarra.IsEnabled = true;
+            try
+            {
+              Restricciongenerarcodbarra();
+            }
+            catch (Exception ex)
+            {
+                //MessageBox.Show("Error List etiqueta:" + ex.Message);
+            }
+           
+
         }
 
         private void chboxAgrupada_Checked(object sender, RoutedEventArgs e)
         {
-            txtCodigoToImprimir.Text = "";
-            txtCodigoToImprimir.IsEnabled = false;
-            txtSobreBarra.Text = "nomProd+Precio";
-            txtSobreBarra.IsEnabled = false;
+            try
+            {
+                Restricciongenerarcodbarra();
+            }
+            catch (Exception ex)
+            {
+                //MessageBox.Show("Error List etiqueta:" + ex.Message);
+            }
+        }
+        private void chboxAgrupadaByStock_Checked(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Restricciongenerarcodbarra();
+            }
+            catch (Exception ex)
+            {
+                //MessageBox.Show("Error List etiqueta:" + ex.Message);
+            }
         }
 
 
@@ -2778,6 +2743,276 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
             {
                 MessageBox.Show("'{0}' Numero fuera de rango para tipo Int32.", value);
                 return 0;
+            }
+        }
+
+        private void ListBoxItem_Selected(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Restricciongenerarcodbarra();
+            }
+            catch (Exception ex)
+            {
+                //MessageBox.Show("Error List etiqueta:" + ex.Message);
+            }
+        }
+        private void Restricciongenerarcodbarra() {
+            int numeEti = listBoxEtiquetas.SelectedIndex;
+
+            if (numeEti == 0)
+            {
+
+                if (chboxNoAgrupada.IsChecked == true)
+                {
+                    txtCodigoToImprimir.Text = "";
+                    txtCodigoToImprimir.IsEnabled = true;
+                    txtCodigoToImprimir.Background = Brushes.White;
+                    txtSobreBarra.Text = "";
+                    txtSobreBarra.IsEnabled = true;
+                    txtSobreBarra.Background = Brushes.White;
+                    txtcolumnas.Background = Brushes.LightGray;
+                    txtcolumnas.IsEnabled = false;
+                    txtfila.Background = Brushes.White;
+                    txtfila.IsEnabled = true;
+                    txttop.IsEnabled = true;
+                    txtbotom.IsEnabled = true;
+                    txtleft.IsEnabled = true;
+                    txtright.IsEnabled = true;
+                    txttop.Text = "0";
+                    txtbotom.Text = "0";
+                    txtleft.Text = "0";
+                    txtright.Text = "0";
+                    txttop.Background = Brushes.White;
+                    txtbotom.Background = Brushes.White;
+                    txtleft.Background = Brushes.White;
+                    txtright.Background = Brushes.White;
+                    txtcolumnas.Text = "1";
+                }
+                else if (chboxAgrupada.IsChecked == true)
+                {
+
+                    txtCodigoToImprimir.Text = "";
+                    txtCodigoToImprimir.IsEnabled = false;
+                    txtCodigoToImprimir.Background = Brushes.LightGray;
+                    txtSobreBarra.Text = "nomProd+Precio";
+                    txtSobreBarra.IsEnabled = false;
+                    txtSobreBarra.Background = Brushes.LightGray;
+                    txtcolumnas.Background = Brushes.LightGray;
+                    txtcolumnas.IsEnabled = false;
+                    txtfila.Background = Brushes.White;
+                    txtfila.IsEnabled = true;
+
+                    txttop.IsEnabled = true;
+                    txtbotom.IsEnabled = true;
+                    txtleft.IsEnabled = true;
+                    txtright.IsEnabled = true;
+                    txttop.Text = "0";
+                    txtbotom.Text = "0";
+                    txtleft.Text = "0";
+                    txtright.Text = "0";
+                    txttop.Background = Brushes.White;
+                    txtbotom.Background = Brushes.White;
+                    txtleft.Background = Brushes.White;
+                    txtright.Background = Brushes.White;
+                    txtcolumnas.Text = "1";
+                }
+                else if (chboxAgrupadaByStock.IsChecked == true)
+                {
+                    txtCodigoToImprimir.Text = "";
+                    txtCodigoToImprimir.IsEnabled = false;
+                    txtCodigoToImprimir.Background = Brushes.LightGray;
+                    txtSobreBarra.Text = "nomProd+Precio";
+                    txtSobreBarra.IsEnabled = false;
+                    txtSobreBarra.Background = Brushes.LightGray;
+                    txtcolumnas.Background = Brushes.LightGray;
+                    txtcolumnas.IsEnabled = false;
+                    txtfila.Background = Brushes.LightGray;
+                    txtfila.IsEnabled = false;
+                    txttop.IsEnabled = true;
+                    txtbotom.IsEnabled = true;
+                    txtleft.IsEnabled = true;
+                    txtright.IsEnabled = true;
+                    txttop.Text = "0";
+                    txtbotom.Text = "0";
+                    txtleft.Text = "0";
+                    txtright.Text = "0";
+                    txttop.Background = Brushes.White;
+                    txtbotom.Background = Brushes.White;
+                    txtleft.Background = Brushes.White;
+                    txtright.Background = Brushes.White;
+                    txtcolumnas.Text = "1";
+                }
+            }
+            else if (numeEti == 1)
+            {
+                if (chboxNoAgrupada.IsChecked == true)
+                {
+                    txtCodigoToImprimir.Text = "";
+                    txtCodigoToImprimir.IsEnabled = true;
+                    txtCodigoToImprimir.Background = Brushes.White;
+                    txtSobreBarra.Text = "";
+                    txtSobreBarra.IsEnabled = true;
+                    txtSobreBarra.Background = Brushes.White;
+                    txtcolumnas.Background = Brushes.LightGray;
+                    txtcolumnas.IsEnabled = false;
+                    txtfila.Background = Brushes.White;
+                    txtfila.IsEnabled = true;
+
+                   
+                    txttop.IsEnabled = false;
+                    txtbotom.IsEnabled = false;
+                    txtleft.IsEnabled = false;
+                    txtright.IsEnabled = false;
+                    txttop.Text = "10";
+                    txtbotom.Text = "0";
+                    txtleft.Text = "10";
+                    txtright.Text = "10";
+                    txttop.Background = Brushes.LightGray;
+                    txtbotom.Background = Brushes.LightGray;
+                    txtleft.Background = Brushes.LightGray;
+                    txtright.Background = Brushes.LightGray;
+                    txtcolumnas.Text = "3";
+                }
+                else if (chboxAgrupada.IsChecked == true)
+                {
+
+                    txtCodigoToImprimir.Text = "";
+                    txtCodigoToImprimir.IsEnabled = false;
+                    txtCodigoToImprimir.Background = Brushes.LightGray;
+                    txtSobreBarra.Text = "nomProd+Precio";
+                    txtSobreBarra.IsEnabled = false;
+                    txtSobreBarra.Background = Brushes.LightGray;
+                    txtcolumnas.Background = Brushes.LightGray;
+                    txtcolumnas.IsEnabled = false;
+                    txtfila.Background = Brushes.White;
+                    txtfila.IsEnabled = true;
+
+                    txttop.IsEnabled = false;
+                    txtbotom.IsEnabled = false;
+                    txtleft.IsEnabled = false;
+                    txtright.IsEnabled = false;
+                    txttop.Text = "10";
+                    txtbotom.Text = "0";
+                    txtleft.Text = "10";
+                    txtright.Text = "10";
+                    txttop.Background = Brushes.LightGray;
+                    txtbotom.Background = Brushes.LightGray;
+                    txtleft.Background = Brushes.LightGray;
+                    txtright.Background = Brushes.LightGray;
+                    txtcolumnas.Text = "3";
+
+                }
+                else if (chboxAgrupadaByStock.IsChecked == true)
+                {
+                    txtCodigoToImprimir.Text = "";
+                    txtCodigoToImprimir.IsEnabled = false;
+                    txtCodigoToImprimir.Background = Brushes.LightGray;
+                    txtSobreBarra.Text = "nomProd+Precio";
+                    txtSobreBarra.IsEnabled = false;
+                    txtSobreBarra.Background = Brushes.LightGray;
+                    txtcolumnas.Background = Brushes.LightGray;
+                    txtcolumnas.IsEnabled = false;
+                    txtfila.Background = Brushes.LightGray;
+                    txtfila.IsEnabled = false;
+
+                    txttop.IsEnabled = false;
+                    txtbotom.IsEnabled = false;
+                    txtleft.IsEnabled = false;
+                    txtright.IsEnabled = false;
+                    txttop.Text = "10";
+                    txtbotom.Text = "0";
+                    txtleft.Text = "10";
+                    txtright.Text = "10";
+                    txttop.Background = Brushes.LightGray;
+                    txtbotom.Background = Brushes.LightGray;
+                    txtleft.Background = Brushes.LightGray;
+                    txtright.Background = Brushes.LightGray;
+                    txtcolumnas.Text = "3";
+                }
+            }
+            else if (numeEti == 2)
+            {
+                if (chboxNoAgrupada.IsChecked == true)
+                {
+                    txtCodigoToImprimir.Text = "";
+                    txtCodigoToImprimir.IsEnabled = true;
+                    txtCodigoToImprimir.Background = Brushes.White;
+                    txtSobreBarra.Text = "";
+                    txtSobreBarra.IsEnabled = true;
+                    txtSobreBarra.Background = Brushes.White;
+                    txtcolumnas.Background = Brushes.White;
+                    txtcolumnas.IsEnabled = true;
+                    txtfila.Background = Brushes.White;
+                    txtfila.IsEnabled = true;
+
+                    txttop.IsEnabled = true;
+                    txtbotom.IsEnabled = true;
+                    txtleft.IsEnabled = true;
+                    txtright.IsEnabled = true;
+                    txttop.Text = "0";
+                    txtbotom.Text = "0";
+                    txtleft.Text = "0";
+                    txtright.Text = "0";
+                    txttop.Background = Brushes.White;
+                    txtbotom.Background = Brushes.White;
+                    txtleft.Background = Brushes.White;
+                    txtright.Background = Brushes.White;
+               
+                }
+                else if (chboxAgrupada.IsChecked == true)
+                {
+
+                    txtCodigoToImprimir.Text = "";
+                    txtCodigoToImprimir.IsEnabled = false;
+                    txtCodigoToImprimir.Background = Brushes.LightGray;
+                    txtSobreBarra.Text = "nomProd+Precio";
+                    txtSobreBarra.IsEnabled = false;
+                    txtSobreBarra.Background = Brushes.LightGray;
+                    txtcolumnas.Background = Brushes.White;
+                    txtcolumnas.IsEnabled = true;
+                    txtfila.Background = Brushes.White;
+                    txtfila.IsEnabled = true;
+
+                    txttop.IsEnabled = true;
+                    txtbotom.IsEnabled = true;
+                    txtleft.IsEnabled = true;
+                    txtright.IsEnabled = true;
+                    txttop.Text = "0";
+                    txtbotom.Text = "0";
+                    txtleft.Text = "0";
+                    txtright.Text = "0";
+                    txttop.Background = Brushes.White;
+                    txtbotom.Background = Brushes.White;
+                    txtleft.Background = Brushes.White;
+                    txtright.Background = Brushes.White;
+                }
+                else if (chboxAgrupadaByStock.IsChecked == true)
+                {
+                    txtCodigoToImprimir.Text = "";
+                    txtCodigoToImprimir.IsEnabled = false;
+                    txtCodigoToImprimir.Background = Brushes.LightGray;
+                    txtSobreBarra.Text = "nomProd+Precio";
+                    txtSobreBarra.IsEnabled = false;
+                    txtSobreBarra.Background = Brushes.LightGray;
+                    txtcolumnas.Background = Brushes.White;
+                    txtcolumnas.IsEnabled = true;
+                    txtfila.Background = Brushes.LightGray;
+                    txtfila.IsEnabled = false;
+
+                    txttop.IsEnabled = true;
+                    txtbotom.IsEnabled = true;
+                    txtleft.IsEnabled = true;
+                    txtright.IsEnabled = true;
+                    txttop.Text = "0";
+                    txtbotom.Text = "0";
+                    txtleft.Text = "0";
+                    txtright.Text = "0";
+                    txttop.Background = Brushes.White;
+                    txtbotom.Background = Brushes.White;
+                    txtleft.Background = Brushes.White;
+                    txtright.Background = Brushes.White;
+                }
             }
         }
     }

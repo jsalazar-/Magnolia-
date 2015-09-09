@@ -20,6 +20,7 @@ using iTextSharp.text.pdf;
 using System.Windows.Controls.Primitives;
 using System.Drawing;
 using Microsoft.Win32;
+using System.Globalization;
 namespace FirstFloor.ModernUI.App.Pages.Tabs
 {
     /// <summary>
@@ -57,7 +58,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
         SelectionChangedEventArgs e)
         {
 
-            var calendar = sender as Calendar;
+            var calendar = sender as System.Windows.Controls.Calendar;
             if (calendarReportes.SelectedDate.HasValue)
             {
                 DateTime date = calendar.SelectedDate.Value;
@@ -77,10 +78,16 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                     totalgananciaDia = totalgananciaDia + item.total;
 
                 }
-
-                lventasDia.Content = totalVentasDia.ToString();
-                lgananciaDia.Content = "$" + totalgananciaDia.ToString();
-
+                if (totalVentasDia == 0)
+                {
+                    lventasDia.Content = totalVentasDia.ToString();
+                    lgananciaDia.Content = "$" + totalgananciaDia.ToString();
+                }
+                else
+                {
+                    lventasDia.Content = totalVentasDia.ToString("#,#", CultureInfo.InvariantCulture);
+                    lgananciaDia.Content = "$" + totalgananciaDia.ToString("#,#", CultureInfo.InvariantCulture);
+                }
                 int totalVentasMes = 0;
                 double totalgananciaMes = 0;
                 foreach (var item in listVentasMes)
@@ -89,10 +96,16 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                     totalgananciaMes = totalgananciaMes + item.total;
 
                 }
-
-                lventasMes.Content = totalVentasMes.ToString();
-                lgananciaMes.Content = "$" + totalgananciaMes.ToString();
-
+                if (totalVentasMes == 0)
+                {
+                    lventasMes.Content = totalVentasMes.ToString();
+                    lgananciaMes.Content = "$" + totalgananciaMes.ToString();
+                }
+                else
+                {
+                    lventasMes.Content = totalVentasMes.ToString("#,#", CultureInfo.InvariantCulture);
+                    lgananciaMes.Content = "$" + totalgananciaMes.ToString("#,#", CultureInfo.InvariantCulture);
+                }
                 int totalVentasAño = 0;
                 double totalgananciaAño = 0;
                 foreach (var item in listVentasAño)
@@ -101,10 +114,16 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                     totalgananciaAño = totalgananciaAño + item.total;
 
                 }
-
-                lventasAño.Content = totalVentasAño.ToString();
-                lgananciaAño.Content = "$" + totalgananciaAño.ToString();
-
+                if (totalVentasAño == 0)
+                {
+                    lventasAño.Content = totalVentasAño.ToString();
+                    lgananciaAño.Content = "$" + totalgananciaAño.ToString();
+                }
+                else
+                {
+                    lventasAño.Content = totalVentasAño.ToString("#,#", CultureInfo.InvariantCulture);
+                    lgananciaAño.Content = "$" + totalgananciaAño.ToString("#,#", CultureInfo.InvariantCulture);
+                }
             }
         }
 
@@ -136,7 +155,6 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                         if (exportSaveFileDialog.ShowDialog() == true)
                         {
                             //File.WriteAllText(exportSaveFileDialog.FileName, "ReporteDia");
-
 
 
                             // Creamos el documento con el tamaño de página tradicional
@@ -320,9 +338,14 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                         //clnombreprod = new PdfPCell(new Phrase(v.idCategoria.ToString() + ":" + v.nombreProducto, _standardFont));
                                         clnombreprod = new PdfPCell(new Phrase(v.nombreProducto.ToString(), _standardFont));
                                         //clnombreprod= new PdfPCell(new Phrase(prodFacEsp.getnombreProdbyidProd(v.idProducto), _standardFont));
-                                        clCant = new PdfPCell(new Phrase(v.cantidad.ToString(), _standardFont));
+                                        int p12 = ToEntero(v.cantidad.ToString(), NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                                        string m12 = p12.ToString("#,#", CultureInfo.InvariantCulture);
+                                        clCant = new PdfPCell(new Phrase(m12, _standardFont));
                                         //clTipoPag = new PdfPCell(new Phrase("", _standardFont));
-                                        cltotalEsp = new PdfPCell(new Phrase(v.total.ToString(), _standardFont));
+                                        int p11 = ToEntero(v.total.ToString(), NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                                        string m11 = p11.ToString("#,#", CultureInfo.InvariantCulture);
+
+                                        cltotalEsp = new PdfPCell(new Phrase(m11, _standardFont));
 
                                         tblEspecifico.AddCell(clFechaEsp);
                                         tblEspecifico.AddCell(clidprod);
@@ -342,7 +365,8 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                     clnombreprod = new PdfPCell(new Phrase("", _standardFont));
                                     clCant = new PdfPCell(new Phrase("Subtotal($)", _standardFont));
                                     //clTipoPag = new PdfPCell(new Phrase("-----------", _standardFont));
-                                    cltotalEsp = new PdfPCell(new Phrase(dineroTotalbyCat.ToString(), _standardFont));
+
+                                    cltotalEsp = new PdfPCell(new Phrase(dineroTotalbyCat.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
                                     dineroTotalbyCat = 0;
 
                                     clFechaEsp.Border = 0;
@@ -448,9 +472,15 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
 
                                         clnombreprod_otros = new PdfPCell(new Phrase(item.nombreProducto, _standardFont));
                                         //clnombreprod= new PdfPCell(new Phrase(prodFacEsp.getnombreProdbyidProd(v.idProducto), _standardFont));
-                                        clCant_otros = new PdfPCell(new Phrase(item.cantidad.ToString(), _standardFont));
-                                        //clTipoPag = new PdfPCell(new Phrase("", _standardFont));
-                                        cltotalEsp_otros = new PdfPCell(new Phrase(item.total.ToString(), _standardFont));
+                                        int p12 = ToEntero(item.cantidad.ToString(), NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                                        string m12 = p12.ToString("#,#", CultureInfo.InvariantCulture);
+                                        clCant_otros = new PdfPCell(new Phrase(m12, _standardFont));
+
+                                        int p11 = ToEntero(item.total.ToString(), NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                                        string m11 = p11.ToString("#,#", CultureInfo.InvariantCulture);
+                                        cltotalEsp_otros = new PdfPCell(new Phrase(m11, _standardFont));
+
+
 
                                         tblOtros.AddCell(clFechaEsp_otros);
                                         tblOtros.AddCell(clidprod_otros);
@@ -482,7 +512,10 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                     clnombreprod_otros = new PdfPCell(new Phrase("", _standardFont));
                                     clCant_otros = new PdfPCell(new Phrase("Subtotal($)", _standardFont));
                                     //clTipoPag = new PdfPCell(new Phrase("-----------", _standardFont));
-                                    cltotalEsp_otros = new PdfPCell(new Phrase(totalOtros.ToString(), _standardFont));
+
+                                    int po = ToEntero(totalOtros.ToString(), NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                                    string mo = po.ToString("#,#", CultureInfo.InvariantCulture);
+                                    cltotalEsp_otros = new PdfPCell(new Phrase(mo.ToString(), _standardFont));
                                     clFechaEsp_otros.Border = 0;
                                     clidprod_otros.Border = 0;
                                     clnombreprod_otros.Border = 0;
@@ -576,9 +609,17 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                     totalsubtotalventas = totalsubtotalventas + subtotalventas;
                                     clFecha = new PdfPCell(new Phrase(date.ToString("D"), _standardFont));
                                     clCat = new PdfPCell(new Phrase(catFac.getNombreCategoriaById(x.Value.ToString()), _standardFont));
-                                    clSubtotal = new PdfPCell(new Phrase(subtotalventas.ToString(), _standardFont));
-                                    clSubtotalCosto = new PdfPCell(new Phrase(subtotalCosto.ToString(), _standardFont));
-                                    clDiferencia = new PdfPCell(new Phrase(diferenciaVenta.ToString(), _standardFont));
+                                    int p123 = ToEntero(subtotalventas.ToString(), NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                                    string m123 = p123.ToString("#,#", CultureInfo.InvariantCulture);
+                                    clSubtotal = new PdfPCell(new Phrase(m123, _standardFont));
+
+                                    int p11 = ToEntero(subtotalCosto.ToString(), NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                                    string m11 = p11.ToString("#,#", CultureInfo.InvariantCulture);
+                                    clSubtotalCosto = new PdfPCell(new Phrase(m11, _standardFont));
+
+                                    int p1112 = ToEntero(diferenciaVenta.ToString(), NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                                    string m1112 = p1112.ToString("#,#", CultureInfo.InvariantCulture);
+                                    clDiferencia = new PdfPCell(new Phrase(m1112, _standardFont));
                                     tblGenerales.AddCell(clFecha);
                                     tblGenerales.AddCell(clCat);
                                     tblGenerales.AddCell(clSubtotal);
@@ -595,9 +636,9 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                 {
                                     clFecha = new PdfPCell(new Phrase(date.ToString("D"), _standardFont));
                                     clCat = new PdfPCell(new Phrase("Otros", _standardFont));
-                                    clSubtotal = new PdfPCell(new Phrase(totalOtros.ToString(), _standardFont));
-                                    clSubtotalCosto = new PdfPCell(new Phrase(subtotalCosto_otros.ToString(), _standardFont));
-                                    clDiferencia = new PdfPCell(new Phrase(diferenciaVenta_otros.ToString(), _standardFont));
+                                    clSubtotal = new PdfPCell(new Phrase(totalOtros.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
+                                    clSubtotalCosto = new PdfPCell(new Phrase(subtotalCosto_otros.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
+                                    clDiferencia = new PdfPCell(new Phrase(diferenciaVenta_otros.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
                                     tblGenerales.AddCell(clFecha);
                                     tblGenerales.AddCell(clCat);
                                     tblGenerales.AddCell(clSubtotal);
@@ -615,8 +656,14 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
 
                                 clFecha = new PdfPCell(new Phrase("", _standardFont));
                                 clCat = new PdfPCell(new Phrase("Total ", _standardFont));
-                                clSubtotal = new PdfPCell(new Phrase(totalsubtotalventas.ToString(), _standardFont));
-                                clSubtotalCosto = new PdfPCell(new Phrase(totalCostoVenta.ToString(), _standardFont));
+                                int p111 = ToEntero(totalsubtotalventas.ToString(), NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                                string m111 = p111.ToString("#,#", CultureInfo.InvariantCulture);
+                                clSubtotal = new PdfPCell(new Phrase(m111.ToString(), _standardFont));
+
+                                int p = ToEntero(totalCostoVenta.ToString(), NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                                string m = p.ToString("#,#", CultureInfo.InvariantCulture);
+                                clSubtotalCosto = new PdfPCell(new Phrase(m, _standardFont));
+
                                 clDiferencia = new PdfPCell(new Phrase("", _standardFont));
 
                                 clFecha.Border = 0;
@@ -632,7 +679,10 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                 clCat = new PdfPCell(new Phrase("", _standardFont));
                                 clSubtotal = new PdfPCell(new Phrase("", _standardFont));
                                 clSubtotalCosto = new PdfPCell(new Phrase("Ganancia Real", _standardFont));
-                                clDiferencia = new PdfPCell(new Phrase(totalDiferencia.ToString(), _standardFont));
+
+                                int pd = ToEntero(totalDiferencia.ToString(), NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                                string md = pd.ToString("#,#", CultureInfo.InvariantCulture);
+                                clDiferencia = new PdfPCell(new Phrase(md.ToString(), _standardFont));
 
                                 clFecha.Border = 0;
                                 clCat.Border = 0;
@@ -646,12 +696,12 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
 
                                 int vtotales = listVentasDia.Count;
                                 iTextSharp.text.Font _fontDe = new iTextSharp.text.Font(iTextSharp.text.Font.HELVETICA, 8, iTextSharp.text.Font.NORMAL, iTextSharp.text.Color.BLACK);
-                                iTextSharp.text.Paragraph ventasTotal = new iTextSharp.text.Paragraph("Total Ventas:" + vtotales.ToString(), _fontDe);
+                                iTextSharp.text.Paragraph ventasTotal = new iTextSharp.text.Paragraph("Total Ventas:" + vtotales.ToString("#,#", CultureInfo.InvariantCulture), _fontDe);
                                 int efectivo = ventasFacEsp.getVentasByFechaDiaPagoEfectivo(date);
                                 int cuenta = ventasFacEsp.getVentasByFechaDiaPagoCuenta(date);
                                 int debito = ventasFacEsp.getVentasByFechaDiaPagoDebito(date);
                                 int cheque = ventasFacEsp.getVentasByFechaDiaPagoCheque(date);
-                                iTextSharp.text.Paragraph pago = new iTextSharp.text.Paragraph("Pago: Efectivo:" + efectivo.ToString() + "  Cuenta:" + cuenta.ToString() + "  Debito:" + debito.ToString() + "  Cheque:" + cheque.ToString(), _fontDe);
+                                iTextSharp.text.Paragraph pago = new iTextSharp.text.Paragraph("Pago: Efectivo:" + efectivo.ToString("#,#", CultureInfo.InvariantCulture) + "  Cuenta:" + cuenta.ToString("#,#", CultureInfo.InvariantCulture) + "  Debito:" + debito.ToString("#,#", CultureInfo.InvariantCulture) + "  Cheque:" + cheque.ToString("#,#", CultureInfo.InvariantCulture), _fontDe);
                                 ventasTotal.Alignment = Element.ALIGN_LEFT;
                                 if (otros)
                                 {
@@ -701,13 +751,9 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                             // }
                             catch (Exception ex)
                             {
-                                MessageBox.Show(ex.ToString());
+                                //MessageBox.Show(ex.ToString());
                             }
-                            finally
-                            {
-                                doc.Close();
-                                writer.Close();
-                            }
+
                             System.Diagnostics.Process.Start(exportSaveFileDialog.FileName);
                         }
 
@@ -932,9 +978,9 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                         //clnombreprod = new PdfPCell(new Phrase(v.idCategoria.ToString() + ":" + v.nombreProducto, _standardFont));
                                         clnombreprod = new PdfPCell(new Phrase(v.nombreProducto.ToString(), _standardFont));
                                         //clnombreprod= new PdfPCell(new Phrase(prodFacEsp.getnombreProdbyidProd(v.idProducto), _standardFont));
-                                        clCant = new PdfPCell(new Phrase(v.cantidad.ToString(), _standardFont));
+                                        clCant = new PdfPCell(new Phrase(v.cantidad.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
                                         //clTipoPag = new PdfPCell(new Phrase("", _standardFont));
-                                        cltotalEsp = new PdfPCell(new Phrase(v.total.ToString(), _standardFont));
+                                        cltotalEsp = new PdfPCell(new Phrase(v.total.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
 
                                         tblEspecifico.AddCell(clFechaEsp);
                                         tblEspecifico.AddCell(clidprod);
@@ -954,7 +1000,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                     clnombreprod = new PdfPCell(new Phrase("", _standardFont));
                                     clCant = new PdfPCell(new Phrase("Subtotal($)", _standardFont));
                                     //clTipoPag = new PdfPCell(new Phrase("-----------", _standardFont));
-                                    cltotalEsp = new PdfPCell(new Phrase(dineroTotalbyCat.ToString(), _standardFont));
+                                    cltotalEsp = new PdfPCell(new Phrase(dineroTotalbyCat.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
                                     dineroTotalbyCat = 0;
 
                                     clFechaEsp.Border = 0;
@@ -1059,9 +1105,9 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
 
                                         clnombreprod_otros = new PdfPCell(new Phrase(item.nombreProducto, _standardFont));
                                         //clnombreprod= new PdfPCell(new Phrase(prodFacEsp.getnombreProdbyidProd(v.idProducto), _standardFont));
-                                        clCant_otros = new PdfPCell(new Phrase(item.cantidad.ToString(), _standardFont));
+                                        clCant_otros = new PdfPCell(new Phrase(item.cantidad.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
                                         //clTipoPag = new PdfPCell(new Phrase("", _standardFont));
-                                        cltotalEsp_otros = new PdfPCell(new Phrase(item.total.ToString(), _standardFont));
+                                        cltotalEsp_otros = new PdfPCell(new Phrase(item.total.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
 
                                         tblOtros.AddCell(clFechaEsp_otros);
                                         tblOtros.AddCell(clidprod_otros);
@@ -1093,7 +1139,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                     clnombreprod_otros = new PdfPCell(new Phrase("", _standardFont));
                                     clCant_otros = new PdfPCell(new Phrase("Subtotal($)", _standardFont));
                                     //clTipoPag = new PdfPCell(new Phrase("-----------", _standardFont));
-                                    cltotalEsp_otros = new PdfPCell(new Phrase(totalOtros.ToString(), _standardFont));
+                                    cltotalEsp_otros = new PdfPCell(new Phrase(totalOtros.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
                                     clFechaEsp_otros.Border = 0;
                                     clidprod_otros.Border = 0;
                                     clnombreprod_otros.Border = 0;
@@ -1186,9 +1232,9 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                     total = total + subtotal;
                                     clFecha = new PdfPCell(new Phrase(date.ToString("y"), _standardFont));
                                     clCat = new PdfPCell(new Phrase(catFac.getNombreCategoriaById(x.Value.ToString()), _standardFont));
-                                    clSubtotal = new PdfPCell(new Phrase(subtotal.ToString(), _standardFont));
-                                    clSubtotalCosto = new PdfPCell(new Phrase(subtotalCosto.ToString(), _standardFont));
-                                    clDiferencia = new PdfPCell(new Phrase(diferenciaVenta.ToString(), _standardFont));
+                                    clSubtotal = new PdfPCell(new Phrase(subtotal.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
+                                    clSubtotalCosto = new PdfPCell(new Phrase(subtotalCosto.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
+                                    clDiferencia = new PdfPCell(new Phrase(diferenciaVenta.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
                                     tblGenerales.AddCell(clFecha);
                                     tblGenerales.AddCell(clCat);
                                     tblGenerales.AddCell(clSubtotal);
@@ -1205,9 +1251,9 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                 {
                                     clFecha = new PdfPCell(new Phrase(date.ToString("y"), _standardFont));
                                     clCat = new PdfPCell(new Phrase("Otros", _standardFont));
-                                    clSubtotal = new PdfPCell(new Phrase(totalOtros.ToString(), _standardFont));
-                                    clSubtotalCosto = new PdfPCell(new Phrase(subtotalCosto_otros.ToString(), _standardFont));
-                                    clDiferencia = new PdfPCell(new Phrase(diferenciaVenta_otros.ToString(), _standardFont));
+                                    clSubtotal = new PdfPCell(new Phrase(totalOtros.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
+                                    clSubtotalCosto = new PdfPCell(new Phrase(subtotalCosto_otros.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
+                                    clDiferencia = new PdfPCell(new Phrase(diferenciaVenta_otros.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
                                     tblGenerales.AddCell(clFecha);
                                     tblGenerales.AddCell(clCat);
                                     tblGenerales.AddCell(clSubtotal);
@@ -1225,8 +1271,8 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
 
                                 clFecha = new PdfPCell(new Phrase("", _standardFont));
                                 clCat = new PdfPCell(new Phrase("Total ", _standardFont));
-                                clSubtotal = new PdfPCell(new Phrase(total.ToString(), _standardFont));
-                                clSubtotalCosto = new PdfPCell(new Phrase(totalCostoVenta.ToString(), _standardFont));
+                                clSubtotal = new PdfPCell(new Phrase(total.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
+                                clSubtotalCosto = new PdfPCell(new Phrase(totalCostoVenta.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
                                 clDiferencia = new PdfPCell(new Phrase("", _standardFont));
 
                                 clFecha.Border = 0;
@@ -1242,7 +1288,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                 clCat = new PdfPCell(new Phrase("", _standardFont));
                                 clSubtotal = new PdfPCell(new Phrase("", _standardFont));
                                 clSubtotalCosto = new PdfPCell(new Phrase("Ganancia Real", _standardFont));
-                                clDiferencia = new PdfPCell(new Phrase(totalDiferencia.ToString(), _standardFont));
+                                clDiferencia = new PdfPCell(new Phrase(totalDiferencia.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
 
                                 clFecha.Border = 0;
                                 clCat.Border = 0;
@@ -1257,12 +1303,12 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
 
                                 int vtotales = listVentasMes.Count;
                                 iTextSharp.text.Font _fontDe = new iTextSharp.text.Font(iTextSharp.text.Font.HELVETICA, 8, iTextSharp.text.Font.NORMAL, iTextSharp.text.Color.BLACK);
-                                iTextSharp.text.Paragraph ventasTotal = new iTextSharp.text.Paragraph("Total Ventas:" + vtotales.ToString(), _fontDe);
+                                iTextSharp.text.Paragraph ventasTotal = new iTextSharp.text.Paragraph("Total Ventas:" + vtotales.ToString("#,#", CultureInfo.InvariantCulture), _fontDe);
                                 int efectivo = ventasFacEsp.getVentasByFechaMesPagoEfectivo(date);
                                 int cuenta = ventasFacEsp.getVentasByFechaMesPagocuenta(date);
                                 int debito = ventasFacEsp.getVentasByFechaMesPagodebito(date);
                                 int cheque = ventasFacEsp.getVentasByFechaMesPagoCheque(date);
-                                iTextSharp.text.Paragraph pago = new iTextSharp.text.Paragraph("Pago: Efectivo:" + efectivo.ToString() + "  Cuenta:" + cuenta.ToString() + "  Debito:" + debito.ToString() + "  Cheque:" + cheque.ToString(), _fontDe);
+                                iTextSharp.text.Paragraph pago = new iTextSharp.text.Paragraph("Pago: Efectivo:" + efectivo.ToString("#,#", CultureInfo.InvariantCulture) + "  Cuenta:" + cuenta.ToString("#,#", CultureInfo.InvariantCulture) + "  Debito:" + debito.ToString("#,#", CultureInfo.InvariantCulture) + "  Cheque:" + cheque.ToString("#,#", CultureInfo.InvariantCulture), _fontDe);
                                 ventasTotal.Alignment = Element.ALIGN_LEFT;
                                 if (otros)
                                 {
@@ -1308,13 +1354,9 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                             // }
                             catch (Exception ex)
                             {
-                                MessageBox.Show(ex.ToString());
+                                //MessageBox.Show(ex.ToString());
                             }
-                            finally
-                            {
-                                doc.Close();
-                                writer.Close();
-                            }
+
                             System.Diagnostics.Process.Start(exportSaveFileDialog.FileName);
                         }
 
@@ -1539,9 +1581,9 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                         //clnombreprod = new PdfPCell(new Phrase(v.idCategoria.ToString() + ":" + v.nombreProducto, _standardFont));
                                         clnombreprod = new PdfPCell(new Phrase(v.nombreProducto.ToString(), _standardFont));
                                         //clnombreprod= new PdfPCell(new Phrase(prodFacEsp.getnombreProdbyidProd(v.idProducto), _standardFont));
-                                        clCant = new PdfPCell(new Phrase(v.cantidad.ToString(), _standardFont));
+                                        clCant = new PdfPCell(new Phrase(v.cantidad.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
                                         //clTipoPag = new PdfPCell(new Phrase("", _standardFont));
-                                        cltotalEsp = new PdfPCell(new Phrase(v.total.ToString(), _standardFont));
+                                        cltotalEsp = new PdfPCell(new Phrase(v.total.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
 
                                         tblEspecifico.AddCell(clFechaEsp);
                                         tblEspecifico.AddCell(clidprod);
@@ -1561,7 +1603,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                     clnombreprod = new PdfPCell(new Phrase("", _standardFont));
                                     clCant = new PdfPCell(new Phrase("Subtotal($)", _standardFont));
                                     //clTipoPag = new PdfPCell(new Phrase("-----------", _standardFont));
-                                    cltotalEsp = new PdfPCell(new Phrase(dineroTotalbyCat.ToString(), _standardFont));
+                                    cltotalEsp = new PdfPCell(new Phrase(dineroTotalbyCat.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
                                     dineroTotalbyCat = 0;
 
                                     clFechaEsp.Border = 0;
@@ -1669,9 +1711,9 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
 
                                         clnombreprod_otros = new PdfPCell(new Phrase(item.nombreProducto, _standardFont));
                                         //clnombreprod= new PdfPCell(new Phrase(prodFacEsp.getnombreProdbyidProd(v.idProducto), _standardFont));
-                                        clCant_otros = new PdfPCell(new Phrase(item.cantidad.ToString(), _standardFont));
+                                        clCant_otros = new PdfPCell(new Phrase(item.cantidad.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
                                         //clTipoPag = new PdfPCell(new Phrase("", _standardFont));
-                                        cltotalEsp_otros = new PdfPCell(new Phrase(item.total.ToString(), _standardFont));
+                                        cltotalEsp_otros = new PdfPCell(new Phrase(item.total.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
 
                                         tblOtros.AddCell(clFechaEsp_otros);
                                         tblOtros.AddCell(clidprod_otros);
@@ -1703,7 +1745,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                     clnombreprod_otros = new PdfPCell(new Phrase("", _standardFont));
                                     clCant_otros = new PdfPCell(new Phrase("Subtotal($)", _standardFont));
                                     //clTipoPag = new PdfPCell(new Phrase("-----------", _standardFont));
-                                    cltotalEsp_otros = new PdfPCell(new Phrase(totalOtros.ToString(), _standardFont));
+                                    cltotalEsp_otros = new PdfPCell(new Phrase(totalOtros.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
                                     clFechaEsp_otros.Border = 0;
                                     clidprod_otros.Border = 0;
                                     clnombreprod_otros.Border = 0;
@@ -1796,9 +1838,9 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                     total = total + subtotal;
                                     clFecha = new PdfPCell(new Phrase(date.ToString("yyyy"), _standardFont));
                                     clCat = new PdfPCell(new Phrase(catFac.getNombreCategoriaById(x.Value.ToString()), _standardFont));
-                                    clSubtotal = new PdfPCell(new Phrase(subtotal.ToString(), _standardFont));
-                                    clSubtotalCosto = new PdfPCell(new Phrase(subtotalCosto.ToString(), _standardFont));
-                                    clDiferencia = new PdfPCell(new Phrase(diferenciaVenta.ToString(), _standardFont));
+                                    clSubtotal = new PdfPCell(new Phrase(subtotal.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
+                                    clSubtotalCosto = new PdfPCell(new Phrase(subtotalCosto.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
+                                    clDiferencia = new PdfPCell(new Phrase(diferenciaVenta.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
                                     tblGenerales.AddCell(clFecha);
                                     tblGenerales.AddCell(clCat);
                                     tblGenerales.AddCell(clSubtotal);
@@ -1815,9 +1857,9 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                 {
                                     clFecha = new PdfPCell(new Phrase(date.ToString("yyyy"), _standardFont));
                                     clCat = new PdfPCell(new Phrase("Otros", _standardFont));
-                                    clSubtotal = new PdfPCell(new Phrase(totalOtros.ToString(), _standardFont));
-                                    clSubtotalCosto = new PdfPCell(new Phrase(subtotalCosto_otros.ToString(), _standardFont));
-                                    clDiferencia = new PdfPCell(new Phrase(diferenciaVenta_otros.ToString(), _standardFont));
+                                    clSubtotal = new PdfPCell(new Phrase(totalOtros.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
+                                    clSubtotalCosto = new PdfPCell(new Phrase(subtotalCosto_otros.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
+                                    clDiferencia = new PdfPCell(new Phrase(diferenciaVenta_otros.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
                                     tblGenerales.AddCell(clFecha);
                                     tblGenerales.AddCell(clCat);
                                     tblGenerales.AddCell(clSubtotal);
@@ -1835,8 +1877,8 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
 
                                 clFecha = new PdfPCell(new Phrase("", _standardFont));
                                 clCat = new PdfPCell(new Phrase("Total ", _standardFont));
-                                clSubtotal = new PdfPCell(new Phrase(total.ToString(), _standardFont));
-                                clSubtotalCosto = new PdfPCell(new Phrase(totalCostoVenta.ToString(), _standardFont));
+                                clSubtotal = new PdfPCell(new Phrase(total.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
+                                clSubtotalCosto = new PdfPCell(new Phrase(totalCostoVenta.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
                                 clDiferencia = new PdfPCell(new Phrase("", _standardFont));
 
                                 clFecha.Border = 0;
@@ -1852,7 +1894,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                 clCat = new PdfPCell(new Phrase("", _standardFont));
                                 clSubtotal = new PdfPCell(new Phrase("", _standardFont));
                                 clSubtotalCosto = new PdfPCell(new Phrase("Ganancia Real", _standardFont));
-                                clDiferencia = new PdfPCell(new Phrase(totalDiferencia.ToString(), _standardFont));
+                                clDiferencia = new PdfPCell(new Phrase(totalDiferencia.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
 
                                 clFecha.Border = 0;
                                 clCat.Border = 0;
@@ -1867,12 +1909,12 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
 
                                 int vtotales = listVentasAño.Count;
                                 iTextSharp.text.Font _fontDe = new iTextSharp.text.Font(iTextSharp.text.Font.HELVETICA, 8, iTextSharp.text.Font.NORMAL, iTextSharp.text.Color.BLACK);
-                                iTextSharp.text.Paragraph ventasTotal = new iTextSharp.text.Paragraph("Total Ventas:" + vtotales.ToString(), _fontDe);
+                                iTextSharp.text.Paragraph ventasTotal = new iTextSharp.text.Paragraph("Total Ventas:" + vtotales.ToString("#,#", CultureInfo.InvariantCulture), _fontDe);
                                 int efectivo = ventasFacEsp.getVentasByFechaAñoPagoEfectivo(date);
                                 int cuenta = ventasFacEsp.getVentasByFechaAñoPagocuenta(date);
                                 int debito = ventasFacEsp.getVentasByFechasAñoPagodebito(date);
                                 int cheque = ventasFacEsp.getVentasByFechaAñoPagoCheque(date);
-                                iTextSharp.text.Paragraph pago = new iTextSharp.text.Paragraph("Pago: Efectivo:" + efectivo.ToString() + "  Cuenta:" + cuenta.ToString() + "  Debito:" + debito.ToString() + "  Cheque:" + cheque.ToString(), _fontDe);
+                                iTextSharp.text.Paragraph pago = new iTextSharp.text.Paragraph("Pago: Efectivo:" + efectivo.ToString("#,#", CultureInfo.InvariantCulture) + "  Cuenta:" + cuenta.ToString("#,#", CultureInfo.InvariantCulture) + "  Debito:" + debito.ToString("#,#", CultureInfo.InvariantCulture) + "  Cheque:" + cheque.ToString("#,#", CultureInfo.InvariantCulture), _fontDe);
                                 ventasTotal.Alignment = Element.ALIGN_LEFT;
                                 if (otros)
                                 {
@@ -1918,13 +1960,9 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                             // }
                             catch (Exception ex)
                             {
-                                MessageBox.Show(ex.ToString());
+                                //MessageBox.Show(ex.ToString());
                             }
-                            finally
-                            {
-                                doc.Close();
-                                writer.Close();
-                            }
+
                             System.Diagnostics.Process.Start(exportSaveFileDialog.FileName);
                         }
 
@@ -2151,11 +2189,14 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
 
                                         //clnombreprod = new PdfPCell(new Phrase(v.idCategoria.ToString() + ":" + v.nombreProducto, _standardFont));
                                         clnombreprod = new PdfPCell(new Phrase(v.nombreProducto.ToString(), _standardFont));
-                                        clPrecioReal = new PdfPCell(new Phrase(v.precioReal.ToString(), _standardFont));
+
+                                        int p1 = ToEntero(v.precioReal.ToString(), NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                                        string m1 = p1.ToString("#,#", CultureInfo.InvariantCulture);
+                                        clPrecioReal = new PdfPCell(new Phrase(m1, _standardFont));
                                         //clnombreprod= new PdfPCell(new Phrase(prodFacEsp.getnombreProdbyidProd(v.idProducto), _standardFont));
-                                        clCant = new PdfPCell(new Phrase(v.cantidad.ToString(), _standardFont));
+                                        clCant = new PdfPCell(new Phrase(v.cantidad.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
                                         //clTipoPag = new PdfPCell(new Phrase("", _standardFont));
-                                        cltotalEsp = new PdfPCell(new Phrase(v.total.ToString(), _standardFont));
+                                        cltotalEsp = new PdfPCell(new Phrase(v.total.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
 
                                         tblEspecifico.AddCell(clFechaEsp);
                                         //tblEspecifico.AddCell(clidprod);
@@ -2177,7 +2218,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                     clPrecioReal = new PdfPCell(new Phrase("", _standardFont));
                                     clCant = new PdfPCell(new Phrase("Subtotal($)", _standardFont));
                                     //clTipoPag = new PdfPCell(new Phrase("-----------", _standardFont));
-                                    cltotalEsp = new PdfPCell(new Phrase(dineroTotalbyCat.ToString(), _standardFont));
+                                    cltotalEsp = new PdfPCell(new Phrase(dineroTotalbyCat.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
                                     dineroTotalbyCat = 0;
 
                                     clFechaEsp.Border = 0;
@@ -2310,7 +2351,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                     clPrecioReal_otros = new PdfPCell(new Phrase("", _standardFont));
                                     clCant_otros = new PdfPCell(new Phrase("Subtotal($)", _standardFont));
                                     //clTipoPag = new PdfPCell(new Phrase("-----------", _standardFont));
-                                    cltotalEsp_otros = new PdfPCell(new Phrase(totalOtros.ToString(), _standardFont));
+                                    cltotalEsp_otros = new PdfPCell(new Phrase(totalOtros.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
                                     clFechaEsp_otros.Border = 0;
                                     clidprod_otros.Border = 0;
                                     clnombreprod_otros.Border = 0;
@@ -2393,7 +2434,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                     total = total + subtotal;
                                     clFecha = new PdfPCell(new Phrase(date.ToString("D"), _standardFont));
                                     clCat = new PdfPCell(new Phrase(catFac.getNombreCategoriaById(x.Value.ToString()), _standardFont));
-                                    clSubtotal = new PdfPCell(new Phrase(subtotal.ToString(), _standardFont));
+                                    clSubtotal = new PdfPCell(new Phrase(subtotal.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
                                     tblGenerales.AddCell(clFecha);
                                     tblGenerales.AddCell(clCat);
                                     tblGenerales.AddCell(clSubtotal);
@@ -2403,7 +2444,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                 {
                                     clFecha = new PdfPCell(new Phrase(date.ToString("D"), _standardFont));
                                     clCat = new PdfPCell(new Phrase("Otros", _standardFont));
-                                    clSubtotal = new PdfPCell(new Phrase(totalOtros.ToString(), _standardFont));
+                                    clSubtotal = new PdfPCell(new Phrase(totalOtros.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
                                     tblGenerales.AddCell(clFecha);
                                     tblGenerales.AddCell(clCat);
                                     tblGenerales.AddCell(clSubtotal);
@@ -2412,7 +2453,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
 
                                 clFecha = new PdfPCell(new Phrase("", _standardFont));
                                 clCat = new PdfPCell(new Phrase("Total Costo Ventas Producto", _standardFont));
-                                clSubtotal = new PdfPCell(new Phrase(total.ToString(), _standardFont));
+                                clSubtotal = new PdfPCell(new Phrase(total.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
 
                                 clFecha.Border = 0;
                                 tblGenerales.AddCell(clFecha);
@@ -2422,12 +2463,12 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
 
                                 int vtotales = listVentasDia.Count;
                                 iTextSharp.text.Font _fontDe = new iTextSharp.text.Font(iTextSharp.text.Font.HELVETICA, 8, iTextSharp.text.Font.NORMAL, iTextSharp.text.Color.BLACK);
-                                iTextSharp.text.Paragraph ventasTotal = new iTextSharp.text.Paragraph("Total Ventas:" + vtotales.ToString(), _fontDe);
+                                iTextSharp.text.Paragraph ventasTotal = new iTextSharp.text.Paragraph("Total Ventas:" + vtotales.ToString("#,#", CultureInfo.InvariantCulture), _fontDe);
                                 int efectivo = ventasFacEsp.getVentasByFechaDiaPagoEfectivo(date);
                                 int cuenta = ventasFacEsp.getVentasByFechaDiaPagoCuenta(date);
                                 int debito = ventasFacEsp.getVentasByFechaDiaPagoDebito(date);
                                 int cheque = ventasFacEsp.getVentasByFechaDiaPagoCheque(date);
-                                iTextSharp.text.Paragraph pago = new iTextSharp.text.Paragraph("Pago: Efectivo:" + efectivo.ToString() + "  Cuenta:" + cuenta.ToString() + "  Debito:" + debito.ToString() + "  Cheque:" + cheque.ToString(), _fontDe);
+                                iTextSharp.text.Paragraph pago = new iTextSharp.text.Paragraph("Pago: Efectivo:" + efectivo.ToString("#,#", CultureInfo.InvariantCulture) + "  Cuenta:" + cuenta.ToString("#,#", CultureInfo.InvariantCulture) + "  Debito:" + debito.ToString("#,#", CultureInfo.InvariantCulture) + "  Cheque:" + cheque.ToString("#,#", CultureInfo.InvariantCulture), _fontDe);
                                 ventasTotal.Alignment = Element.ALIGN_LEFT;
                                 if (otros)
                                 {
@@ -2472,13 +2513,9 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                             // }
                             catch (Exception ex)
                             {
-                                MessageBox.Show(ex.ToString());
+                                //MessageBox.Show(ex.ToString());
                             }
-                            finally
-                            {
-                                doc.Close();
-                                writer.Close();
-                            }
+
                             System.Diagnostics.Process.Start(exportSaveFileDialog.FileName);
                         }
 
@@ -2703,11 +2740,13 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
 
                                         //clnombreprod = new PdfPCell(new Phrase(v.idCategoria.ToString() + ":" + v.nombreProducto, _standardFont));
                                         clnombreprod = new PdfPCell(new Phrase(v.nombreProducto.ToString(), _standardFont));
-                                        clPrecioReal = new PdfPCell(new Phrase(v.precioReal.ToString(), _standardFont));
+                                        int p1 = ToEntero(v.precioReal, NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                                        string m1 = p1.ToString("#,#", CultureInfo.InvariantCulture);
+                                        clPrecioReal = new PdfPCell(new Phrase(m1, _standardFont));
                                         //clnombreprod= new PdfPCell(new Phrase(prodFacEsp.getnombreProdbyidProd(v.idProducto), _standardFont));
                                         clCant = new PdfPCell(new Phrase(v.cantidad.ToString(), _standardFont));
                                         //clTipoPag = new PdfPCell(new Phrase("", _standardFont));
-                                        cltotalEsp = new PdfPCell(new Phrase(v.total.ToString(), _standardFont));
+                                        cltotalEsp = new PdfPCell(new Phrase(v.total.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
 
                                         tblEspecifico.AddCell(clFechaEsp);
                                         //tblEspecifico.AddCell(clidprod);
@@ -2729,7 +2768,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                     clPrecioReal = new PdfPCell(new Phrase("", _standardFont));
                                     clCant = new PdfPCell(new Phrase("Subtotal($)", _standardFont));
                                     //clTipoPag = new PdfPCell(new Phrase("-----------", _standardFont));
-                                    cltotalEsp = new PdfPCell(new Phrase(dineroTotalbyCat.ToString(), _standardFont));
+                                    cltotalEsp = new PdfPCell(new Phrase(dineroTotalbyCat.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
                                     dineroTotalbyCat = 0;
 
                                     clFechaEsp.Border = 0;
@@ -2838,11 +2877,14 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                         clidprod_otros = new PdfPCell(new Phrase(item.idProducto, _standardFont));
 
                                         clnombreprod_otros = new PdfPCell(new Phrase(item.nombreProducto, _standardFont));
-                                        clPrecioReal_otros = new PdfPCell(new Phrase(item.precioReal, _standardFont));
+                                        int p1 = ToEntero(item.precioReal, NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                                        string m1 = p1.ToString("#,#", CultureInfo.InvariantCulture);
+                                        clPrecioReal_otros = new PdfPCell(new Phrase(m1, _standardFont));
                                         //clnombreprod= new PdfPCell(new Phrase(prodFacEsp.getnombreProdbyidProd(v.idProducto), _standardFont));
-                                        clCant_otros = new PdfPCell(new Phrase(item.cantidad.ToString(), _standardFont));
+
+                                        clCant_otros = new PdfPCell(new Phrase(item.cantidad.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
                                         //clTipoPag = new PdfPCell(new Phrase("", _standardFont));
-                                        cltotalEsp_otros = new PdfPCell(new Phrase(item.total.ToString(), _standardFont));
+                                        cltotalEsp_otros = new PdfPCell(new Phrase(item.total.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
 
                                         tblOtros.AddCell(clFechaEsp_otros);
                                         //tblOtros.AddCell(clidprod_otros);
@@ -2862,7 +2904,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                     clPrecioReal_otros = new PdfPCell(new Phrase("", _standardFont));
                                     clCant_otros = new PdfPCell(new Phrase("Subtotal($)", _standardFont));
                                     //clTipoPag = new PdfPCell(new Phrase("-----------", _standardFont));
-                                    cltotalEsp_otros = new PdfPCell(new Phrase(totalOtros.ToString(), _standardFont));
+                                    cltotalEsp_otros = new PdfPCell(new Phrase(totalOtros.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
                                     clFechaEsp_otros.Border = 0;
                                     clidprod_otros.Border = 0;
                                     clnombreprod_otros.Border = 0;
@@ -2945,7 +2987,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                     total = total + subtotal;
                                     clFecha = new PdfPCell(new Phrase(date.ToString("y"), _standardFont));
                                     clCat = new PdfPCell(new Phrase(catFac.getNombreCategoriaById(x.Value.ToString()), _standardFont));
-                                    clSubtotal = new PdfPCell(new Phrase(subtotal.ToString(), _standardFont));
+                                    clSubtotal = new PdfPCell(new Phrase(subtotal.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
                                     tblGenerales.AddCell(clFecha);
                                     tblGenerales.AddCell(clCat);
                                     tblGenerales.AddCell(clSubtotal);
@@ -2955,7 +2997,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                 {
                                     clFecha = new PdfPCell(new Phrase(date.ToString("y"), _standardFont));
                                     clCat = new PdfPCell(new Phrase("Otros", _standardFont));
-                                    clSubtotal = new PdfPCell(new Phrase(totalOtros.ToString(), _standardFont));
+                                    clSubtotal = new PdfPCell(new Phrase(totalOtros.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
                                     tblGenerales.AddCell(clFecha);
                                     tblGenerales.AddCell(clCat);
                                     tblGenerales.AddCell(clSubtotal);
@@ -2964,7 +3006,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
 
                                 clFecha = new PdfPCell(new Phrase("", _standardFont));
                                 clCat = new PdfPCell(new Phrase("Total Costo Ventas Producto", _standardFont));
-                                clSubtotal = new PdfPCell(new Phrase(total.ToString(), _standardFont));
+                                clSubtotal = new PdfPCell(new Phrase(total.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
 
                                 clFecha.Border = 0;
                                 tblGenerales.AddCell(clFecha);
@@ -2973,12 +3015,12 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
 
                                 int vtotales = listVentasMes.Count;
                                 iTextSharp.text.Font _fontDe = new iTextSharp.text.Font(iTextSharp.text.Font.HELVETICA, 8, iTextSharp.text.Font.NORMAL, iTextSharp.text.Color.BLACK);
-                                iTextSharp.text.Paragraph ventasTotal = new iTextSharp.text.Paragraph("Total Ventas:" + vtotales.ToString(), _fontDe);
+                                iTextSharp.text.Paragraph ventasTotal = new iTextSharp.text.Paragraph("Total Ventas:" + vtotales.ToString("#,#", CultureInfo.InvariantCulture), _fontDe);
                                 int efectivo = ventasFacEsp.getVentasByFechaMesPagoEfectivo(date);
                                 int cuenta = ventasFacEsp.getVentasByFechaMesPagocuenta(date);
                                 int debito = ventasFacEsp.getVentasByFechaMesPagodebito(date);
                                 int cheque = ventasFacEsp.getVentasByFechaMesPagoCheque(date);
-                                iTextSharp.text.Paragraph pago = new iTextSharp.text.Paragraph("Pago: Efectivo:" + efectivo.ToString() + "  Cuenta:" + cuenta.ToString() + "  Debito:" + debito.ToString() + "  Cheque:" + cheque.ToString(), _fontDe);
+                                iTextSharp.text.Paragraph pago = new iTextSharp.text.Paragraph("Pago: Efectivo:" + efectivo.ToString("#,#", CultureInfo.InvariantCulture) + "  Cuenta:" + cuenta.ToString("#,#", CultureInfo.InvariantCulture) + "  Debito:" + debito.ToString("#,#", CultureInfo.InvariantCulture) + "  Cheque:" + cheque.ToString("#,#", CultureInfo.InvariantCulture), _fontDe);
                                 ventasTotal.Alignment = Element.ALIGN_LEFT;
                                 if (otros)
                                 {
@@ -3024,13 +3066,9 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                             // }
                             catch (Exception ex)
                             {
-                                MessageBox.Show(ex.ToString());
+                                //MessageBox.Show(ex.ToString());
                             }
-                            finally
-                            {
-                                doc.Close();
-                                writer.Close();
-                            }
+
                             System.Diagnostics.Process.Start(exportSaveFileDialog.FileName);
                         }
 
@@ -3254,9 +3292,9 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                         //clnombreprod = new PdfPCell(new Phrase(v.idCategoria.ToString() + ":" + v.nombreProducto, _standardFont));
                                         clnombreprod = new PdfPCell(new Phrase(v.nombreProducto.ToString(), _standardFont));
                                         //clnombreprod= new PdfPCell(new Phrase(prodFacEsp.getnombreProdbyidProd(v.idProducto), _standardFont));
-                                        clCant = new PdfPCell(new Phrase(v.cantidad.ToString(), _standardFont));
+                                        clCant = new PdfPCell(new Phrase(v.cantidad.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
                                         //clTipoPag = new PdfPCell(new Phrase("", _standardFont));
-                                        cltotalEsp = new PdfPCell(new Phrase(v.total.ToString(), _standardFont));
+                                        cltotalEsp = new PdfPCell(new Phrase(v.total.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
 
                                         tblEspecifico.AddCell(clFechaEsp);
                                         tblEspecifico.AddCell(clidprod);
@@ -3276,7 +3314,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                     clnombreprod = new PdfPCell(new Phrase("", _standardFont));
                                     clCant = new PdfPCell(new Phrase("Subtotal($)", _standardFont));
                                     //clTipoPag = new PdfPCell(new Phrase("-----------", _standardFont));
-                                    cltotalEsp = new PdfPCell(new Phrase(dineroTotalbyCat.ToString(), _standardFont));
+                                    cltotalEsp = new PdfPCell(new Phrase(dineroTotalbyCat.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
                                     dineroTotalbyCat = 0;
 
                                     clFechaEsp.Border = 0;
@@ -3377,11 +3415,14 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                         clidprod_otros = new PdfPCell(new Phrase(item.idProducto, _standardFont));
 
                                         clnombreprod_otros = new PdfPCell(new Phrase(item.nombreProducto, _standardFont));
-                                        clPrecioReal_otros = new PdfPCell(new Phrase(item.precioReal, _standardFont));
+                                        int p1 = ToEntero(item.precioReal, NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                                        string m1 = p1.ToString("#,#", CultureInfo.InvariantCulture);
+
+                                        clPrecioReal_otros = new PdfPCell(new Phrase(m1, _standardFont));
                                         //clnombreprod= new PdfPCell(new Phrase(prodFacEsp.getnombreProdbyidProd(v.idProducto), _standardFont));
-                                        clCant_otros = new PdfPCell(new Phrase(item.cantidad.ToString(), _standardFont));
+                                        clCant_otros = new PdfPCell(new Phrase(item.cantidad.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
                                         //clTipoPag = new PdfPCell(new Phrase("", _standardFont));
-                                        cltotalEsp_otros = new PdfPCell(new Phrase(item.total.ToString(), _standardFont));
+                                        cltotalEsp_otros = new PdfPCell(new Phrase(item.total.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
 
                                         tblOtros.AddCell(clFechaEsp_otros);
                                         //tblOtros.AddCell(clidprod_otros);
@@ -3401,7 +3442,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                     clPrecioReal_otros = new PdfPCell(new Phrase("", _standardFont));
                                     clCant_otros = new PdfPCell(new Phrase("Subtotal($)", _standardFont));
                                     //clTipoPag = new PdfPCell(new Phrase("-----------", _standardFont));
-                                    cltotalEsp_otros = new PdfPCell(new Phrase(totalOtros.ToString(), _standardFont));
+                                    cltotalEsp_otros = new PdfPCell(new Phrase(totalOtros.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
                                     clFechaEsp_otros.Border = 0;
                                     clidprod_otros.Border = 0;
                                     clnombreprod_otros.Border = 0;
@@ -3484,7 +3525,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                     total = total + subtotal;
                                     clFecha = new PdfPCell(new Phrase(date.ToString("yyyy"), _standardFont));
                                     clCat = new PdfPCell(new Phrase(catFac.getNombreCategoriaById(x.Value.ToString()), _standardFont));
-                                    clSubtotal = new PdfPCell(new Phrase(subtotal.ToString(), _standardFont));
+                                    clSubtotal = new PdfPCell(new Phrase(subtotal.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
                                     tblGenerales.AddCell(clFecha);
                                     tblGenerales.AddCell(clCat);
                                     tblGenerales.AddCell(clSubtotal);
@@ -3494,7 +3535,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                 {
                                     clFecha = new PdfPCell(new Phrase(date.ToString("yyyy"), _standardFont));
                                     clCat = new PdfPCell(new Phrase("Otros", _standardFont));
-                                    clSubtotal = new PdfPCell(new Phrase(totalOtros.ToString(), _standardFont));
+                                    clSubtotal = new PdfPCell(new Phrase(totalOtros.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
                                     tblGenerales.AddCell(clFecha);
                                     tblGenerales.AddCell(clCat);
                                     tblGenerales.AddCell(clSubtotal);
@@ -3503,7 +3544,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
 
                                 clFecha = new PdfPCell(new Phrase("", _standardFont));
                                 clCat = new PdfPCell(new Phrase("Total Costo Ventas Producto", _standardFont));
-                                clSubtotal = new PdfPCell(new Phrase(total.ToString(), _standardFont));
+                                clSubtotal = new PdfPCell(new Phrase(total.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
 
                                 clFecha.Border = 0;
                                 tblGenerales.AddCell(clFecha);
@@ -3513,12 +3554,12 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
 
                                 int vtotales = listVentasAño.Count;
                                 iTextSharp.text.Font _fontDe = new iTextSharp.text.Font(iTextSharp.text.Font.HELVETICA, 8, iTextSharp.text.Font.NORMAL, iTextSharp.text.Color.BLACK);
-                                iTextSharp.text.Paragraph ventasTotal = new iTextSharp.text.Paragraph("Total Ventas:" + vtotales.ToString(), _fontDe);
+                                iTextSharp.text.Paragraph ventasTotal = new iTextSharp.text.Paragraph("Total Ventas:" + vtotales.ToString("#,#", CultureInfo.InvariantCulture), _fontDe);
                                 int efectivo = ventasFacEsp.getVentasByFechaAñoPagoEfectivo(date);
                                 int cuenta = ventasFacEsp.getVentasByFechaAñoPagocuenta(date);
                                 int debito = ventasFacEsp.getVentasByFechasAñoPagodebito(date);
                                 int cheque = ventasFacEsp.getVentasByFechaAñoPagoCheque(date);
-                                iTextSharp.text.Paragraph pago = new iTextSharp.text.Paragraph("Pago: Efectivo:" + efectivo.ToString() + "  Cuenta:" + cuenta.ToString() + "  Debito:" + debito.ToString() + "  Cheque:" + cheque.ToString(), _fontDe);
+                                iTextSharp.text.Paragraph pago = new iTextSharp.text.Paragraph("Pago: Efectivo:" + efectivo.ToString("#,#", CultureInfo.InvariantCulture) + "  Cuenta:" + cuenta.ToString("#,#", CultureInfo.InvariantCulture) + "  Debito:" + debito.ToString("#,#", CultureInfo.InvariantCulture) + "  Cheque:" + cheque.ToString("#,#", CultureInfo.InvariantCulture), _fontDe);
                                 ventasTotal.Alignment = Element.ALIGN_LEFT;
                                 if (otros)
                                 {
@@ -3563,13 +3604,9 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                             // }
                             catch (Exception ex)
                             {
-                                MessageBox.Show(ex.ToString());
+                                //MessageBox.Show(ex.ToString());
                             }
-                            finally
-                            {
-                                doc.Close();
-                                writer.Close();
-                            }
+
                             System.Diagnostics.Process.Start(exportSaveFileDialog.FileName);
                         }
 
@@ -3597,8 +3634,19 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
         {
             ProductoFacade prodFac = new ProductoFacade();
             categoriaFacade catFac = new categoriaFacade();
-            ltotalproduc.Content = prodFac.getTotalProductosbyMes(fecha).ToString();
-            ltotalrubros.Content = catFac.getTotalCategoriabyMes(fecha).ToString();
+            int p = prodFac.getTotalProductosbyMes(fecha);
+            int c = catFac.getTotalCategoriabyMes(fecha);
+            if (p == 0 || c == 0)
+            {
+                ltotalproduc.Content = p.ToString();
+                ltotalrubros.Content = c.ToString();
+            }
+            else
+            {
+                ltotalproduc.Content = p.ToString("#,#", CultureInfo.InvariantCulture);
+                ltotalrubros.Content = c.ToString("#,#", CultureInfo.InvariantCulture);
+            }
+
 
 
         }
@@ -3743,10 +3791,16 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                                 //clnombreprod = new PdfPCell(new Phrase(v.idCategoria.ToString() + ":" + v.nombreProducto, _standardFont));
                                                 clnombreprod = new PdfPCell(new Phrase(v.nombre.ToString(), _standardFont));
                                                 //clnombreprod= new PdfPCell(new Phrase(prodFacEsp.getnombreProdbyidProd(v.idProducto), _standardFont));
-                                                clPrecioReal = new PdfPCell(new Phrase(v.precioReal.ToString(), _standardFont));
-                                                clCant = new PdfPCell(new Phrase(v.stock.ToString(), _standardFont));
+
+                                                int p1 = ToEntero(v.precioReal, NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                                                string m1 = p1.ToString("#,#", CultureInfo.InvariantCulture);
+                                                clPrecioReal = new PdfPCell(new Phrase(m1, _standardFont));
+
+                                                int p12 = ToEntero(v.stock, NumberStyles.Float | NumberStyles.AllowThousands, new CultureInfo("en-GB"));
+                                                string m12 = p12.ToString("#,#", CultureInfo.InvariantCulture);
+                                                clCant = new PdfPCell(new Phrase(m12, _standardFont));
                                                 //clTipoPag = new PdfPCell(new Phrase("", _standardFont));
-                                                cltotalEsp = new PdfPCell(new Phrase(v.total.ToString(), _standardFont));
+                                                cltotalEsp = new PdfPCell(new Phrase(v.total.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
 
                                                 tblEspecifico.AddCell(clFechaEsp);
                                                 //tblEspecifico.AddCell(clidprod);
@@ -3768,7 +3822,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                             clPrecioReal = new PdfPCell(new Phrase("", _standardFont));
                                             clCant = new PdfPCell(new Phrase("Subtotal($)", _standardFont));
                                             //clTipoPag = new PdfPCell(new Phrase("-----------", _standardFont));
-                                            cltotalEsp = new PdfPCell(new Phrase(dineroTotalbyCat.ToString(), _standardFont));
+                                            cltotalEsp = new PdfPCell(new Phrase(dineroTotalbyCat.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
                                             dineroTotalbyCat = 0;
 
                                             clFechaEsp.Border = 0;
@@ -3857,7 +3911,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                             total = total + subtotal;
                                             clFecha = new PdfPCell(new Phrase(Convert.ToDateTime(month).ToString("y"), _standardFont));
                                             clCat = new PdfPCell(new Phrase(catFac.getNombreCategoriaById(x.Value.ToString()), _standardFont));
-                                            clSubtotal = new PdfPCell(new Phrase(subtotal.ToString(), _standardFont));
+                                            clSubtotal = new PdfPCell(new Phrase(subtotal.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
                                             tblGenerales.AddCell(clFecha);
                                             tblGenerales.AddCell(clCat);
                                             tblGenerales.AddCell(clSubtotal);
@@ -3867,7 +3921,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
 
                                         clFecha = new PdfPCell(new Phrase("", _standardFont));
                                         clCat = new PdfPCell(new Phrase("Total Costo  Producto Adquiridos", _standardFont));
-                                        clSubtotal = new PdfPCell(new Phrase(total.ToString(), _standardFont));
+                                        clSubtotal = new PdfPCell(new Phrase(total.ToString("#,#", CultureInfo.InvariantCulture), _standardFont));
 
                                         clFecha.Border = 0;
                                         tblGenerales.AddCell(clFecha);
@@ -3899,13 +3953,9 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                                     }
                                     catch (Exception ex)
                                     {
-                                        MessageBox.Show(ex.ToString());
+                                        //MessageBox.Show(ex.ToString());
                                     }
-                                    finally
-                                    {
-                                        doc.Close();
-                                        writer.Close();
-                                    }
+
 
                                 }
 
@@ -3919,9 +3969,10 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
                     }
                     else
                     {
-                        MessageBox.Show("No hay Productos ingresados", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show("No hay Productos ingresados/actualizados en este mes", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
+                else { MessageBox.Show("No hay categorias ingresadas/actualizadas  en este mes", "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error); }
             }
             else
             {
@@ -3933,7 +3984,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
        SelectionChangedEventArgs e)
         {
 
-            var calendar = sender as Calendar;
+            var calendar = sender as System.Windows.Controls.Calendar; ;
             if (calendarReportesPagoRubro.SelectedDate.HasValue)
             {
                 CantidadTotalRubrosyProductos(MesRubroProd);
@@ -4009,7 +4060,25 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs
             translogin.pageTransitionControl.ShowPage(login);
         }
 
-
+        private int ToEntero(string value, NumberStyles style, IFormatProvider provider)
+        {
+            try
+            {
+                int number = Int32.Parse(value, style, provider);
+                //Console.WriteLine("Converted '{0}' to {1}.", value, number);
+                return number;
+            }
+            catch (FormatException)
+            {
+                //MessageBox.Show("Unable to convert '{0}'.", value);
+                return 0;
+            }
+            catch (OverflowException)
+            {
+                MessageBox.Show("'{0}' Numero fuera de rango para tipo Int32.", value);
+                return 0;
+            }
+        }
 
 
 

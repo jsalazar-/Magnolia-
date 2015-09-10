@@ -1732,79 +1732,82 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
 
                     foreach (var prod in listProducto)
                     {
-                        string urlCategoriabyProd = urlCategoria + "\\" + prod.nombre;
-                        Document doc = new Document(PageSize.LETTER);
-                        // Indicamos donde vamos a guardar el documento
-                        PdfWriter writer = PdfWriter.GetInstance(doc, new FileStream(urlCategoriabyProd + ".pdf", FileMode.Create));
-                        doc.AddCreator("Magnolia");
-                        doc.Open();
-                        BaseFont serif = BaseFont.CreateFont(@"C:\Windows\Fonts\micross.ttf", "Identity-H", BaseFont.EMBEDDED);
-                        iTextSharp.text.Font _standardFont = new iTextSharp.text.Font(serif, Convert.ToInt32(txtTamanoFuente.Text), iTextSharp.text.Font.NORMAL, iTextSharp.text.Color.BLACK);
-
-                        int col = 1;
-                        int row = Convert.ToInt32(prod.stock);
-                        PdfPTable tblPrueba = new PdfPTable(col);
-                        doc.SetMargins(0f, 0f, 0f, 0f);
-                        tblPrueba.HorizontalAlignment = Element.ALIGN_CENTER;
-                        tblPrueba.WidthPercentage = 50;
-
-                        for (int c = 0; c < col; c++)
+                        if (Convert.ToInt32(prod.stock) != 0)
                         {
-                            int W = Convert.ToInt32(this.txtAncho.Text.Trim());
-                            int H = Convert.ToInt32(this.txtAlto.Text.Trim());
-                            b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
-                            BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
-                            b.IncludeLabel = true;
-                            b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
-                            b.Encode(type, prod.idProducto, W, H);
-                            BarcodeLib.SaveTypes savetype = BarcodeLib.SaveTypes.PNG;
-                            b.SaveImage(urlimagen, savetype);
+                            string urlCategoriabyProd = urlCategoria + "\\" + prod.nombre;
+                            Document doc = new Document(PageSize.LETTER);
+                            // Indicamos donde vamos a guardar el documento
+                           
+                            PdfWriter writer = PdfWriter.GetInstance(doc, new FileStream(urlCategoriabyProd + ".pdf", FileMode.Create));
+                            doc.AddCreator("Magnolia");
+                            doc.Open();
+                            BaseFont serif = BaseFont.CreateFont(@"C:\Windows\Fonts\micross.ttf", "Identity-H", BaseFont.EMBEDDED);
+                            iTextSharp.text.Font _standardFont = new iTextSharp.text.Font(serif, Convert.ToInt32(txtTamanoFuente.Text), iTextSharp.text.Font.NORMAL, iTextSharp.text.Color.BLACK);
 
-                            iTextSharp.text.Image imagen = iTextSharp.text.Image.GetInstance(urlimagen);
-                            imagen.BorderWidth = 0;
-                            imagen.Alignment = Element.ALIGN_CENTER;
-                            imagen.ScaleToFit(150f, 150f);
+                            int col = 1;
+                            int row = Convert.ToInt32(prod.stock);
+                            PdfPTable tblPrueba = new PdfPTable(col);
+                            doc.SetMargins(0f, 0f, 0f, 0f);
+                            tblPrueba.HorizontalAlignment = Element.ALIGN_CENTER;
+                            tblPrueba.WidthPercentage = 50;
 
-                            string txtsobreBarra = "";
-                            if (chkGenerateLabel.IsChecked.Value)
+                            for (int c = 0; c < col; c++)
                             {
-                                
-                                if (prod.nombre.Length > 25)
+                                int W = Convert.ToInt32(this.txtAncho.Text.Trim());
+                                int H = Convert.ToInt32(this.txtAlto.Text.Trim());
+                                b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
+                                BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
+                                b.IncludeLabel = true;
+                                b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
+                                b.Encode(type, prod.idProducto, W, H);
+                                BarcodeLib.SaveTypes savetype = BarcodeLib.SaveTypes.PNG;
+                                b.SaveImage(urlimagen, savetype);
+
+                                iTextSharp.text.Image imagen = iTextSharp.text.Image.GetInstance(urlimagen);
+                                imagen.BorderWidth = 0;
+                                imagen.Alignment = Element.ALIGN_CENTER;
+                                imagen.ScaleToFit(150f, 150f);
+
+                                string txtsobreBarra = "";
+                                if (chkGenerateLabel.IsChecked.Value)
                                 {
-                                    txtsobreBarra = prod.nombre.Substring(0, 25) + " $" + prod.precio;
+
+                                    if (prod.nombre.Length > 25)
+                                    {
+                                        txtsobreBarra = prod.nombre.Substring(0, 25) + " $" + prod.precio;
+                                    }
+                                    else
+                                    {
+                                        txtsobreBarra = prod.nombre + " $" + prod.precio;
+                                    }
+
                                 }
-                                else
+
+                                for (int f = 0; f < row; f++)
                                 {
-                                    txtsobreBarra = prod.nombre + " $" + prod.precio;
+
+                                    PdfPCell clNombre = new PdfPCell { };
+                                    clNombre.BorderWidth = 0;
+                                    clNombre.Padding = 13;
+                                    clNombre.HorizontalAlignment = Element.ALIGN_CENTER;
+                                    iTextSharp.text.Paragraph textsobre = new iTextSharp.text.Paragraph(new Phrase(txtsobreBarra, _standardFont));
+                                    textsobre.Alignment = 1;
+                                    clNombre.AddElement(textsobre);
+                                    clNombre.AddElement(imagen);
+                                    tblPrueba.AddCell(clNombre);
                                 }
+
 
                             }
 
-                            for (int f = 0; f < row; f++)
-                            {
 
-                                PdfPCell clNombre = new PdfPCell { };
-                                clNombre.BorderWidth = 0;
-                                clNombre.Padding = 13;
-                                clNombre.HorizontalAlignment = Element.ALIGN_CENTER;
-                                iTextSharp.text.Paragraph textsobre = new iTextSharp.text.Paragraph(new Phrase(txtsobreBarra, _standardFont));
-                                textsobre.Alignment = 1;
-                                clNombre.AddElement(textsobre);
-                                clNombre.AddElement(imagen);
-                                tblPrueba.AddCell(clNombre);
-                            }
-
-
+                            doc.Add(tblPrueba);
+                            doc.Close();
+                            writer.Close();
+  correct = true;
                         }
-
-
-                        doc.Add(tblPrueba);
-                        doc.Close();
-                        writer.Close();
-
-
                     }
-                    correct = true;
+                  
 
                 }
                 //Etiqueta para rollo con 3 columnas de  mica
@@ -1823,80 +1826,82 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
 
                     foreach (var prod in listProducto)
                     {
-                        
-                        Document doc = new Document(PageSize.LETTER);
-                        string urlCategoriabyProd = urlCategoria + "\\" + prod.nombre;
-                        // Indicamos donde vamos a guardar el documento
-                        PdfWriter writer = PdfWriter.GetInstance(doc, new FileStream(urlCategoriabyProd + ".pdf", FileMode.Create));
-                        doc.AddCreator("Magnolia");
-                        doc.Open();
-                        BaseFont serif = BaseFont.CreateFont(@"C:\Windows\Fonts\micross.ttf", "Identity-H", BaseFont.EMBEDDED);
-                        iTextSharp.text.Font _standardFont = new iTextSharp.text.Font(serif, Convert.ToInt32(txtTamanoFuente.Text), iTextSharp.text.Font.NORMAL, iTextSharp.text.Color.BLACK);
-
-                        int col = 3;
-                        double fk =(double) Convert.ToInt32(prod.stock) / 3;
-                        int row = Convert.ToInt32(Math.Ceiling(fk));
-                        //MessageBox.Show(fk.ToString()+":"+prod.stock + "/3=" + row.ToString());
-                        PdfPTable tblPrueba = new PdfPTable(col);
-                        doc.SetMargins(0f, 0f, 0f, 0f);
-                        tblPrueba.HorizontalAlignment = Element.ALIGN_CENTER;
-                        tblPrueba.WidthPercentage = 100;
-
-                        for (int c = 0; c < col; c++)
+                        if (Convert.ToInt32(prod.stock) != 0)
                         {
-                            int W = Convert.ToInt32(this.txtAncho.Text.Trim());
-                            int H = Convert.ToInt32(this.txtAlto.Text.Trim());
-                            b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
-                            BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
-                            b.IncludeLabel = true;
-                            b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
-                            b.Encode(type, prod.idProducto, W, H);
-                            BarcodeLib.SaveTypes savetype = BarcodeLib.SaveTypes.PNG;
-                            b.SaveImage(urlimagen, savetype);
+                            Document doc = new Document(PageSize.LETTER);
+                            string urlCategoriabyProd = urlCategoria + "\\" + prod.nombre;
+                            // Indicamos donde vamos a guardar el documento
+                            PdfWriter writer = PdfWriter.GetInstance(doc, new FileStream(urlCategoriabyProd + ".pdf", FileMode.Create));
+                            doc.AddCreator("Magnolia");
+                            doc.Open();
+                            BaseFont serif = BaseFont.CreateFont(@"C:\Windows\Fonts\micross.ttf", "Identity-H", BaseFont.EMBEDDED);
+                            iTextSharp.text.Font _standardFont = new iTextSharp.text.Font(serif, Convert.ToInt32(txtTamanoFuente.Text), iTextSharp.text.Font.NORMAL, iTextSharp.text.Color.BLACK);
 
-                            iTextSharp.text.Image imagen = iTextSharp.text.Image.GetInstance(urlimagen);
-                            imagen.BorderWidth = 0;
-                            imagen.Alignment = Element.ALIGN_CENTER;
-                            imagen.ScaleToFit(150f, 150f);
+                            int col = 3;
+                            double fk = (double)Convert.ToInt32(prod.stock) / 3;
+                            int row = Convert.ToInt32(Math.Ceiling(fk));
+                            //MessageBox.Show(fk.ToString()+":"+prod.stock + "/3=" + row.ToString());
+                            PdfPTable tblPrueba = new PdfPTable(col);
+                            doc.SetMargins(0f, 0f, 0f, 0f);
+                            tblPrueba.HorizontalAlignment = Element.ALIGN_CENTER;
+                            tblPrueba.WidthPercentage = 100;
 
-                            string txtsobreBarra = "";
-                            if (chkGenerateLabel.IsChecked.Value)
+                            for (int c = 0; c < col; c++)
                             {
-                                //MessageBox.Show(prod.nombre.Length.ToString() + ";" + prod.nombre);
-                                if (prod.nombre.Length > 25)
+                                int W = Convert.ToInt32(this.txtAncho.Text.Trim());
+                                int H = Convert.ToInt32(this.txtAlto.Text.Trim());
+                                b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
+                                BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
+                                b.IncludeLabel = true;
+                                b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
+                                b.Encode(type, prod.idProducto, W, H);
+                                BarcodeLib.SaveTypes savetype = BarcodeLib.SaveTypes.PNG;
+                                b.SaveImage(urlimagen, savetype);
+
+                                iTextSharp.text.Image imagen = iTextSharp.text.Image.GetInstance(urlimagen);
+                                imagen.BorderWidth = 0;
+                                imagen.Alignment = Element.ALIGN_CENTER;
+                                imagen.ScaleToFit(150f, 150f);
+
+                                string txtsobreBarra = "";
+                                if (chkGenerateLabel.IsChecked.Value)
                                 {
-                                    txtsobreBarra = prod.nombre.Substring(0, 25) + " $" + prod.precio;
+                                    //MessageBox.Show(prod.nombre.Length.ToString() + ";" + prod.nombre);
+                                    if (prod.nombre.Length > 25)
+                                    {
+                                        txtsobreBarra = prod.nombre.Substring(0, 25) + " $" + prod.precio;
+                                    }
+                                    else
+                                    {
+                                        txtsobreBarra = prod.nombre + " $" + prod.precio;
+                                    }
+
                                 }
-                                else
+
+                                for (int f = 0; f < row; f++)
                                 {
-                                    txtsobreBarra = prod.nombre + " $" + prod.precio;
+
+                                    PdfPCell clNombre = new PdfPCell { };
+                                    clNombre.BorderWidth = 0;
+                                    clNombre.Padding = 13;
+                                    clNombre.HorizontalAlignment = Element.ALIGN_CENTER;
+                                    iTextSharp.text.Paragraph textsobre = new iTextSharp.text.Paragraph(new Phrase(txtsobreBarra, _standardFont));
+                                    textsobre.Alignment = 1;
+                                    clNombre.AddElement(textsobre);
+                                    clNombre.AddElement(imagen);
+                                    tblPrueba.AddCell(clNombre);
                                 }
+
 
                             }
 
-                            for (int f = 0; f < row; f++)
-                            {
 
-                                PdfPCell clNombre = new PdfPCell { };
-                                clNombre.BorderWidth = 0;
-                                clNombre.Padding = 13;
-                                clNombre.HorizontalAlignment = Element.ALIGN_CENTER;
-                                iTextSharp.text.Paragraph textsobre = new iTextSharp.text.Paragraph(new Phrase(txtsobreBarra, _standardFont));
-                                textsobre.Alignment = 1;
-                                clNombre.AddElement(textsobre);
-                                clNombre.AddElement(imagen);
-                                tblPrueba.AddCell(clNombre);
-                            }
-
+                            doc.Add(tblPrueba);
+                            doc.Close();
+                            writer.Close();
+                            
 
                         }
-
-
-                        doc.Add(tblPrueba);
-                        doc.Close();
-                        writer.Close();
-
-
                     }
                     correct = true;
                 }
@@ -1931,82 +1936,83 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
 
                                     foreach (var prod in listProducto)
                                     {
-
-                                        Document doc = new Document(PageSize.LETTER, left, right, top, bottom);
-                                        string urlCategoriabyProd = urlCategoria + "\\" + prod.nombre;
-                                        // Indicamos donde vamos a guardar el documento
-                                        PdfWriter writer = PdfWriter.GetInstance(doc, new FileStream(urlCategoriabyProd + ".pdf", FileMode.Create));
-                                        doc.AddCreator("Magnolia");
-                                        doc.Open();
-                                        BaseFont serif = BaseFont.CreateFont(@"C:\Windows\Fonts\micross.ttf", "Identity-H", BaseFont.EMBEDDED);
-                                        iTextSharp.text.Font _standardFont = new iTextSharp.text.Font(serif, Convert.ToInt32(txtTamanoFuente.Text), iTextSharp.text.Font.NORMAL, iTextSharp.text.Color.BLACK);
-
-                                        int col = Convert.ToInt32(txtcolumnas.Text);
-                                        double fk = (double)Convert.ToInt32(prod.stock) / col;
-                                        int row = Convert.ToInt32(Math.Ceiling(fk));
-                                       //MessageBox.Show(fk.ToString() + ":" + prod.stock + "/3=" + row.ToString());
-                                        PdfPTable tblPrueba = new PdfPTable(col);
-                                        doc.SetMargins(0f, 0f, 0f, 0f);
-                                        tblPrueba.HorizontalAlignment = Element.ALIGN_CENTER;
-                                        tblPrueba.WidthPercentage = 100;
-
-                                        for (int c = 0; c < col; c++)
+                                        if (Convert.ToInt32(prod.stock) != 0)
                                         {
-                                            int W = Convert.ToInt32(this.txtAncho.Text.Trim());
-                                            int H = Convert.ToInt32(this.txtAlto.Text.Trim());
-                                            b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
-                                            BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
-                                            b.IncludeLabel = true;
-                                            b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
-                                            b.Encode(type, prod.idProducto, W, H);
-                                            BarcodeLib.SaveTypes savetype = BarcodeLib.SaveTypes.PNG;
-                                            b.SaveImage(urlimagen, savetype);
+                                            Document doc = new Document(PageSize.LETTER, left, right, top, bottom);
+                                            string urlCategoriabyProd = urlCategoria + "\\" + prod.nombre;
+                                            // Indicamos donde vamos a guardar el documento
+                                            PdfWriter writer = PdfWriter.GetInstance(doc, new FileStream(urlCategoriabyProd + ".pdf", FileMode.Create));
+                                            doc.AddCreator("Magnolia");
+                                            doc.Open();
+                                            BaseFont serif = BaseFont.CreateFont(@"C:\Windows\Fonts\micross.ttf", "Identity-H", BaseFont.EMBEDDED);
+                                            iTextSharp.text.Font _standardFont = new iTextSharp.text.Font(serif, Convert.ToInt32(txtTamanoFuente.Text), iTextSharp.text.Font.NORMAL, iTextSharp.text.Color.BLACK);
 
-                                            iTextSharp.text.Image imagen = iTextSharp.text.Image.GetInstance(urlimagen);
-                                            imagen.BorderWidth = 0;
-                                            imagen.Alignment = Element.ALIGN_CENTER;
-                                            imagen.ScaleToFit(150f, 150f);
+                                            int col = Convert.ToInt32(txtcolumnas.Text);
+                                            double fk = (double)Convert.ToInt32(prod.stock) / col;
+                                            int row = Convert.ToInt32(Math.Ceiling(fk));
+                                            //MessageBox.Show(fk.ToString() + ":" + prod.stock + "/3=" + row.ToString());
+                                            PdfPTable tblPrueba = new PdfPTable(col);
+                                            doc.SetMargins(0f, 0f, 0f, 0f);
+                                            tblPrueba.HorizontalAlignment = Element.ALIGN_CENTER;
+                                            tblPrueba.WidthPercentage = 100;
 
-                                            string txtsobreBarra = "";
-                                            if (chkGenerateLabel.IsChecked.Value)
+                                            for (int c = 0; c < col; c++)
                                             {
-                                                //MessageBox.Show(prod.nombre.Length.ToString() + ";" + prod.nombre);
-                                                if (prod.nombre.Length > 25)
+                                                int W = Convert.ToInt32(this.txtAncho.Text.Trim());
+                                                int H = Convert.ToInt32(this.txtAlto.Text.Trim());
+                                                b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
+                                                BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
+                                                b.IncludeLabel = true;
+                                                b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
+                                                b.Encode(type, prod.idProducto, W, H);
+                                                BarcodeLib.SaveTypes savetype = BarcodeLib.SaveTypes.PNG;
+                                                b.SaveImage(urlimagen, savetype);
+
+                                                iTextSharp.text.Image imagen = iTextSharp.text.Image.GetInstance(urlimagen);
+                                                imagen.BorderWidth = 0;
+                                                imagen.Alignment = Element.ALIGN_CENTER;
+                                                imagen.ScaleToFit(150f, 150f);
+
+                                                string txtsobreBarra = "";
+                                                if (chkGenerateLabel.IsChecked.Value)
                                                 {
-                                                    txtsobreBarra = prod.nombre.Substring(0, 25) + " $" + prod.precio;
+                                                    //MessageBox.Show(prod.nombre.Length.ToString() + ";" + prod.nombre);
+                                                    if (prod.nombre.Length > 25)
+                                                    {
+                                                        txtsobreBarra = prod.nombre.Substring(0, 25) + " $" + prod.precio;
+                                                    }
+                                                    else
+                                                    {
+                                                        txtsobreBarra = prod.nombre + " $" + prod.precio;
+                                                    }
+
                                                 }
-                                                else
+
+                                                for (int f = 0; f < row; f++)
                                                 {
-                                                    txtsobreBarra = prod.nombre + " $" + prod.precio;
+
+                                                    PdfPCell clNombre = new PdfPCell { };
+                                                    clNombre.BorderWidth = 0;
+                                                    clNombre.Padding = 13;
+                                                    clNombre.HorizontalAlignment = Element.ALIGN_CENTER;
+                                                    iTextSharp.text.Paragraph textsobre = new iTextSharp.text.Paragraph(new Phrase(txtsobreBarra, _standardFont));
+                                                    textsobre.Alignment = 1;
+                                                    clNombre.AddElement(textsobre);
+                                                    clNombre.AddElement(imagen);
+                                                    tblPrueba.AddCell(clNombre);
                                                 }
+
 
                                             }
 
-                                            for (int f = 0; f < row; f++)
-                                            {
 
-                                                PdfPCell clNombre = new PdfPCell { };
-                                                clNombre.BorderWidth = 0;
-                                                clNombre.Padding = 13;
-                                                clNombre.HorizontalAlignment = Element.ALIGN_CENTER;
-                                                iTextSharp.text.Paragraph textsobre = new iTextSharp.text.Paragraph(new Phrase(txtsobreBarra, _standardFont));
-                                                textsobre.Alignment = 1;
-                                                clNombre.AddElement(textsobre);
-                                                clNombre.AddElement(imagen);
-                                                tblPrueba.AddCell(clNombre);
-                                            }
-
-
+                                            doc.Add(tblPrueba);
+                                            doc.Close();
+                                            writer.Close();
+ correct = true;
                                         }
-
-
-                                        doc.Add(tblPrueba);
-                                        doc.Close();
-                                        writer.Close();
-
-
                                     }
-                                    correct = true;
+                                   
 
                                 }
                                 else
@@ -2035,9 +2041,15 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
                 }
                 return correct;
             }
+            catch (IOException ex)
+            {
+                MessageBox.Show("IOO:" + ex.ToString(), "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                return correct;
+            }
+          
             catch (Exception e)
             {
-                MessageBox.Show("Cerrar PDf abierto:" + e.Message, "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Cerrar PDf abierto:" + e.ToString(), "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
                 return correct;
             }
             
@@ -2064,82 +2076,83 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
 
                     foreach (var prod in listProducto)
                     {
-
-                        Document doc = new Document(PageSize.LETTER);
-                        string urlCategoriabyProd = urlCategoria + "\\" + prod.nombre;
-                        // Indicamos donde vamos a guardar el documento
-                        PdfWriter writer = PdfWriter.GetInstance(doc, new FileStream(urlCategoriabyProd + ".pdf", FileMode.Create));
-                        doc.AddCreator("Magnolia");
-                        doc.Open();
-                        BaseFont serif = BaseFont.CreateFont(@"C:\Windows\Fonts\micross.ttf", "Identity-H", BaseFont.EMBEDDED);
-                        iTextSharp.text.Font _standardFont = new iTextSharp.text.Font(serif, Convert.ToInt32(txtTamanoFuente.Text), iTextSharp.text.Font.NORMAL, iTextSharp.text.Color.BLACK);
-
-                        int col = 1;
-                        
-                        int row = Convert.ToInt32(txtfila.Text);
-                        
-                        PdfPTable tblPrueba = new PdfPTable(col);
-                        doc.SetMargins(0f, 0f, 0f, 0f);
-                        tblPrueba.HorizontalAlignment = Element.ALIGN_CENTER;
-                        tblPrueba.WidthPercentage = 50;
-
-                        for (int c = 0; c < col; c++)
+                        if (Convert.ToInt32(prod.stock) != 0)
                         {
-                            int W = Convert.ToInt32(this.txtAncho.Text.Trim());
-                            int H = Convert.ToInt32(this.txtAlto.Text.Trim());
-                            b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
-                            BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
-                            b.IncludeLabel = true;
-                            b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
-                            b.Encode(type, prod.idProducto, W, H);
-                            BarcodeLib.SaveTypes savetype = BarcodeLib.SaveTypes.PNG;
-                            b.SaveImage(urlimagen, savetype);
+                            Document doc = new Document(PageSize.LETTER);
+                            string urlCategoriabyProd = urlCategoria + "\\" + prod.nombre;
+                            // Indicamos donde vamos a guardar el documento
+                            PdfWriter writer = PdfWriter.GetInstance(doc, new FileStream(urlCategoriabyProd + ".pdf", FileMode.Create));
+                            doc.AddCreator("Magnolia");
+                            doc.Open();
+                            BaseFont serif = BaseFont.CreateFont(@"C:\Windows\Fonts\micross.ttf", "Identity-H", BaseFont.EMBEDDED);
+                            iTextSharp.text.Font _standardFont = new iTextSharp.text.Font(serif, Convert.ToInt32(txtTamanoFuente.Text), iTextSharp.text.Font.NORMAL, iTextSharp.text.Color.BLACK);
 
-                            iTextSharp.text.Image imagen = iTextSharp.text.Image.GetInstance(urlimagen);
-                            imagen.BorderWidth = 0;
-                            imagen.Alignment = Element.ALIGN_CENTER;
-                            imagen.ScaleToFit(150f, 150f);
+                            int col = 1;
 
-                            string txtsobreBarra = "";
-                            if (chkGenerateLabel.IsChecked.Value)
+                            int row = Convert.ToInt32(txtfila.Text);
+
+                            PdfPTable tblPrueba = new PdfPTable(col);
+                            doc.SetMargins(0f, 0f, 0f, 0f);
+                            tblPrueba.HorizontalAlignment = Element.ALIGN_CENTER;
+                            tblPrueba.WidthPercentage = 50;
+
+                            for (int c = 0; c < col; c++)
                             {
-                                //MessageBox.Show(prod.nombre.Length.ToString() + ";" + prod.nombre);
-                                if (prod.nombre.Length > 25)
+                                int W = Convert.ToInt32(this.txtAncho.Text.Trim());
+                                int H = Convert.ToInt32(this.txtAlto.Text.Trim());
+                                b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
+                                BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
+                                b.IncludeLabel = true;
+                                b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
+                                b.Encode(type, prod.idProducto, W, H);
+                                BarcodeLib.SaveTypes savetype = BarcodeLib.SaveTypes.PNG;
+                                b.SaveImage(urlimagen, savetype);
+
+                                iTextSharp.text.Image imagen = iTextSharp.text.Image.GetInstance(urlimagen);
+                                imagen.BorderWidth = 0;
+                                imagen.Alignment = Element.ALIGN_CENTER;
+                                imagen.ScaleToFit(150f, 150f);
+
+                                string txtsobreBarra = "";
+                                if (chkGenerateLabel.IsChecked.Value)
                                 {
-                                    txtsobreBarra = prod.nombre.Substring(0, 25) + " $" + prod.precio;
+                                    //MessageBox.Show(prod.nombre.Length.ToString() + ";" + prod.nombre);
+                                    if (prod.nombre.Length > 25)
+                                    {
+                                        txtsobreBarra = prod.nombre.Substring(0, 25) + " $" + prod.precio;
+                                    }
+                                    else
+                                    {
+                                        txtsobreBarra = prod.nombre + " $" + prod.precio;
+                                    }
+
                                 }
-                                else
+
+                                for (int f = 0; f < row; f++)
                                 {
-                                    txtsobreBarra = prod.nombre + " $" + prod.precio;
+
+                                    PdfPCell clNombre = new PdfPCell { };
+                                    clNombre.BorderWidth = 0;
+                                    clNombre.Padding = 13;
+                                    clNombre.HorizontalAlignment = Element.ALIGN_CENTER;
+                                    iTextSharp.text.Paragraph textsobre = new iTextSharp.text.Paragraph(new Phrase(txtsobreBarra, _standardFont));
+                                    textsobre.Alignment = 1;
+                                    clNombre.AddElement(textsobre);
+                                    clNombre.AddElement(imagen);
+                                    tblPrueba.AddCell(clNombre);
                                 }
+
 
                             }
 
-                            for (int f = 0; f < row; f++)
-                            {
 
-                                PdfPCell clNombre = new PdfPCell { };
-                                clNombre.BorderWidth = 0;
-                                clNombre.Padding = 13;
-                                clNombre.HorizontalAlignment = Element.ALIGN_CENTER;
-                                iTextSharp.text.Paragraph textsobre = new iTextSharp.text.Paragraph(new Phrase(txtsobreBarra, _standardFont));
-                                textsobre.Alignment = 1;
-                                clNombre.AddElement(textsobre);
-                                clNombre.AddElement(imagen);
-                                tblPrueba.AddCell(clNombre);
-                            }
-
-
+                            doc.Add(tblPrueba);
+                            doc.Close();
+                            writer.Close();
+correct = true;
                         }
-
-
-                        doc.Add(tblPrueba);
-                        doc.Close();
-                        writer.Close();
-
-
                     }
-                    correct = true;
+                    
                 }
                 else if (numEtiq == 1)
                 {
@@ -2157,82 +2170,83 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
 
                     foreach (var prod in listProducto)
                     {
-
-                        Document doc = new Document(PageSize.LETTER, 10f, 10f, 10f, 0f);
-                        string urlCategoriabyProd = urlCategoria + "\\" + prod.nombre;
-                        // Indicamos donde vamos a guardar el documento
-                        PdfWriter writer = PdfWriter.GetInstance(doc, new FileStream(urlCategoriabyProd + ".pdf", FileMode.Create));
-                        doc.AddCreator("Magnolia");
-                        doc.Open();
-                        BaseFont serif = BaseFont.CreateFont(@"C:\Windows\Fonts\micross.ttf", "Identity-H", BaseFont.EMBEDDED);
-                        iTextSharp.text.Font _standardFont = new iTextSharp.text.Font(serif, Convert.ToInt32(txtTamanoFuente.Text), iTextSharp.text.Font.NORMAL, iTextSharp.text.Color.BLACK);
-
-                        int col = 3;
-                        double fk = (double)Convert.ToInt32(txtfila.Text) / col;
-                        int row = Convert.ToInt32(Math.Ceiling(fk));
-
-                        PdfPTable tblPrueba = new PdfPTable(col);
-                        doc.SetMargins(0f, 0f, 0f, 0f);
-                        tblPrueba.HorizontalAlignment = Element.ALIGN_CENTER;
-                        tblPrueba.WidthPercentage = 100;
-
-                        for (int c = 0; c < col; c++)
+                        if (Convert.ToInt32(prod.stock) != 0)
                         {
-                            int W = Convert.ToInt32(this.txtAncho.Text.Trim());
-                            int H = Convert.ToInt32(this.txtAlto.Text.Trim());
-                            b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
-                            BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
-                            b.IncludeLabel = true;
-                            b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
-                            b.Encode(type, prod.idProducto, W, H);
-                            BarcodeLib.SaveTypes savetype = BarcodeLib.SaveTypes.PNG;
-                            b.SaveImage(urlimagen, savetype);
+                            Document doc = new Document(PageSize.LETTER, 10f, 10f, 10f, 0f);
+                            string urlCategoriabyProd = urlCategoria + "\\" + prod.nombre;
+                            // Indicamos donde vamos a guardar el documento
+                            PdfWriter writer = PdfWriter.GetInstance(doc, new FileStream(urlCategoriabyProd + ".pdf", FileMode.Create));
+                            doc.AddCreator("Magnolia");
+                            doc.Open();
+                            BaseFont serif = BaseFont.CreateFont(@"C:\Windows\Fonts\micross.ttf", "Identity-H", BaseFont.EMBEDDED);
+                            iTextSharp.text.Font _standardFont = new iTextSharp.text.Font(serif, Convert.ToInt32(txtTamanoFuente.Text), iTextSharp.text.Font.NORMAL, iTextSharp.text.Color.BLACK);
 
-                            iTextSharp.text.Image imagen = iTextSharp.text.Image.GetInstance(urlimagen);
-                            imagen.BorderWidth = 0;
-                            imagen.Alignment = Element.ALIGN_CENTER;
-                            imagen.ScaleToFit(150f, 150f);
+                            int col = 3;
+                            double fk = (double)Convert.ToInt32(txtfila.Text) / col;
+                            int row = Convert.ToInt32(Math.Ceiling(fk));
 
-                            string txtsobreBarra = "";
-                            if (chkGenerateLabel.IsChecked.Value)
+                            PdfPTable tblPrueba = new PdfPTable(col);
+                            doc.SetMargins(0f, 0f, 0f, 0f);
+                            tblPrueba.HorizontalAlignment = Element.ALIGN_CENTER;
+                            tblPrueba.WidthPercentage = 100;
+
+                            for (int c = 0; c < col; c++)
                             {
-                               // MessageBox.Show(prod.nombre.Length.ToString() + ";" + prod.nombre);
-                                if (prod.nombre.Length > 25)
+                                int W = Convert.ToInt32(this.txtAncho.Text.Trim());
+                                int H = Convert.ToInt32(this.txtAlto.Text.Trim());
+                                b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
+                                BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
+                                b.IncludeLabel = true;
+                                b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
+                                b.Encode(type, prod.idProducto, W, H);
+                                BarcodeLib.SaveTypes savetype = BarcodeLib.SaveTypes.PNG;
+                                b.SaveImage(urlimagen, savetype);
+
+                                iTextSharp.text.Image imagen = iTextSharp.text.Image.GetInstance(urlimagen);
+                                imagen.BorderWidth = 0;
+                                imagen.Alignment = Element.ALIGN_CENTER;
+                                imagen.ScaleToFit(150f, 150f);
+
+                                string txtsobreBarra = "";
+                                if (chkGenerateLabel.IsChecked.Value)
                                 {
-                                    txtsobreBarra = prod.nombre.Substring(0, 25) + " $" + prod.precio;
+                                    // MessageBox.Show(prod.nombre.Length.ToString() + ";" + prod.nombre);
+                                    if (prod.nombre.Length > 25)
+                                    {
+                                        txtsobreBarra = prod.nombre.Substring(0, 25) + " $" + prod.precio;
+                                    }
+                                    else
+                                    {
+                                        txtsobreBarra = prod.nombre + " $" + prod.precio;
+                                    }
+
                                 }
-                                else
+
+                                for (int f = 0; f < row; f++)
                                 {
-                                    txtsobreBarra = prod.nombre + " $" + prod.precio;
+
+                                    PdfPCell clNombre = new PdfPCell { };
+                                    clNombre.BorderWidth = 0;
+                                    clNombre.Padding = 13;
+                                    clNombre.HorizontalAlignment = Element.ALIGN_CENTER;
+                                    iTextSharp.text.Paragraph textsobre = new iTextSharp.text.Paragraph(new Phrase(txtsobreBarra, _standardFont));
+                                    textsobre.Alignment = 1;
+                                    clNombre.AddElement(textsobre);
+                                    clNombre.AddElement(imagen);
+                                    tblPrueba.AddCell(clNombre);
                                 }
+
 
                             }
 
-                            for (int f = 0; f < row; f++)
-                            {
 
-                                PdfPCell clNombre = new PdfPCell { };
-                                clNombre.BorderWidth = 0;
-                                clNombre.Padding = 13;
-                                clNombre.HorizontalAlignment = Element.ALIGN_CENTER;
-                                iTextSharp.text.Paragraph textsobre = new iTextSharp.text.Paragraph(new Phrase(txtsobreBarra, _standardFont));
-                                textsobre.Alignment = 1;
-                                clNombre.AddElement(textsobre);
-                                clNombre.AddElement(imagen);
-                                tblPrueba.AddCell(clNombre);
-                            }
-
-
+                            doc.Add(tblPrueba);
+                            doc.Close();
+                            writer.Close();
+                            correct = true;
                         }
-
-
-                        doc.Add(tblPrueba);
-                        doc.Close();
-                        writer.Close();
-
-
                     }
-                    correct = true;
+                   
                 }
                 else if (numEtiq == 2)
                 {
@@ -2264,82 +2278,83 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
 
                                     foreach (var prod in listProducto)
                                     {
-
-                                        Document doc = new Document(PageSize.LETTER, left, right, top, bottom);
-                                        string urlCategoriabyProd = urlCategoria + "\\" + prod.nombre;
-                                        // Indicamos donde vamos a guardar el documento
-                                        PdfWriter writer = PdfWriter.GetInstance(doc, new FileStream(urlCategoriabyProd + ".pdf", FileMode.Create));
-                                        doc.AddCreator("Magnolia");
-                                        doc.Open();
-                                        BaseFont serif = BaseFont.CreateFont(@"C:\Windows\Fonts\micross.ttf", "Identity-H", BaseFont.EMBEDDED);
-                                        iTextSharp.text.Font _standardFont = new iTextSharp.text.Font(serif, Convert.ToInt32(txtTamanoFuente.Text), iTextSharp.text.Font.NORMAL, iTextSharp.text.Color.BLACK);
-
-                                        int col = Convert.ToInt32(txtcolumnas.Text);
-                                        double fk = (double)Convert.ToInt32(txtfila.Text) / col;
-                                        int row = Convert.ToInt32(Math.Ceiling(fk));
-                                        //MessageBox.Show(fk.ToString() + ":" + prod.stock + "/3=" + row.ToString());
-                                        PdfPTable tblPrueba = new PdfPTable(col);
-                                        doc.SetMargins(0f, 0f, 0f, 0f);
-                                        tblPrueba.HorizontalAlignment = Element.ALIGN_CENTER;
-                                        tblPrueba.WidthPercentage = 100;
-
-                                        for (int c = 0; c < col; c++)
+                                        if (Convert.ToInt32(prod.stock) != 0)
                                         {
-                                            int W = Convert.ToInt32(this.txtAncho.Text.Trim());
-                                            int H = Convert.ToInt32(this.txtAlto.Text.Trim());
-                                            b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
-                                            BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
-                                            b.IncludeLabel = true;
-                                            b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
-                                            b.Encode(type, prod.idProducto, W, H);
-                                            BarcodeLib.SaveTypes savetype = BarcodeLib.SaveTypes.PNG;
-                                            b.SaveImage(urlimagen, savetype);
+                                            Document doc = new Document(PageSize.LETTER, left, right, top, bottom);
+                                            string urlCategoriabyProd = urlCategoria + "\\" + prod.nombre;
+                                            // Indicamos donde vamos a guardar el documento
+                                            PdfWriter writer = PdfWriter.GetInstance(doc, new FileStream(urlCategoriabyProd + ".pdf", FileMode.Create));
+                                            doc.AddCreator("Magnolia");
+                                            doc.Open();
+                                            BaseFont serif = BaseFont.CreateFont(@"C:\Windows\Fonts\micross.ttf", "Identity-H", BaseFont.EMBEDDED);
+                                            iTextSharp.text.Font _standardFont = new iTextSharp.text.Font(serif, Convert.ToInt32(txtTamanoFuente.Text), iTextSharp.text.Font.NORMAL, iTextSharp.text.Color.BLACK);
 
-                                            iTextSharp.text.Image imagen = iTextSharp.text.Image.GetInstance(urlimagen);
-                                            imagen.BorderWidth = 0;
-                                            imagen.Alignment = Element.ALIGN_CENTER;
-                                            imagen.ScaleToFit(150f, 150f);
+                                            int col = Convert.ToInt32(txtcolumnas.Text);
+                                            double fk = (double)Convert.ToInt32(txtfila.Text) / col;
+                                            int row = Convert.ToInt32(Math.Ceiling(fk));
+                                            //MessageBox.Show(fk.ToString() + ":" + prod.stock + "/3=" + row.ToString());
+                                            PdfPTable tblPrueba = new PdfPTable(col);
+                                            doc.SetMargins(0f, 0f, 0f, 0f);
+                                            tblPrueba.HorizontalAlignment = Element.ALIGN_CENTER;
+                                            tblPrueba.WidthPercentage = 100;
 
-                                            string txtsobreBarra = "";
-                                            if (chkGenerateLabel.IsChecked.Value)
+                                            for (int c = 0; c < col; c++)
                                             {
-                                               // MessageBox.Show(prod.nombre.Length.ToString() + ";" + prod.nombre);
-                                                if (prod.nombre.Length > 25)
+                                                int W = Convert.ToInt32(this.txtAncho.Text.Trim());
+                                                int H = Convert.ToInt32(this.txtAlto.Text.Trim());
+                                                b.Alignment = BarcodeLib.AlignmentPositions.CENTER;
+                                                BarcodeLib.TYPE type = BarcodeLib.TYPE.CODE128;
+                                                b.IncludeLabel = true;
+                                                b.LabelPosition = BarcodeLib.LabelPositions.BOTTOMCENTER;
+                                                b.Encode(type, prod.idProducto, W, H);
+                                                BarcodeLib.SaveTypes savetype = BarcodeLib.SaveTypes.PNG;
+                                                b.SaveImage(urlimagen, savetype);
+
+                                                iTextSharp.text.Image imagen = iTextSharp.text.Image.GetInstance(urlimagen);
+                                                imagen.BorderWidth = 0;
+                                                imagen.Alignment = Element.ALIGN_CENTER;
+                                                imagen.ScaleToFit(150f, 150f);
+
+                                                string txtsobreBarra = "";
+                                                if (chkGenerateLabel.IsChecked.Value)
                                                 {
-                                                    txtsobreBarra = prod.nombre.Substring(0, 25) + " $" + prod.precio;
+                                                    // MessageBox.Show(prod.nombre.Length.ToString() + ";" + prod.nombre);
+                                                    if (prod.nombre.Length > 25)
+                                                    {
+                                                        txtsobreBarra = prod.nombre.Substring(0, 25) + " $" + prod.precio;
+                                                    }
+                                                    else
+                                                    {
+                                                        txtsobreBarra = prod.nombre + " $" + prod.precio;
+                                                    }
+
                                                 }
-                                                else
+
+                                                for (int f = 0; f < row; f++)
                                                 {
-                                                    txtsobreBarra = prod.nombre + " $" + prod.precio;
+
+                                                    PdfPCell clNombre = new PdfPCell { };
+                                                    clNombre.BorderWidth = 0;
+                                                    clNombre.Padding = 13;
+                                                    clNombre.HorizontalAlignment = Element.ALIGN_CENTER;
+                                                    iTextSharp.text.Paragraph textsobre = new iTextSharp.text.Paragraph(new Phrase(txtsobreBarra, _standardFont));
+                                                    textsobre.Alignment = 1;
+                                                    clNombre.AddElement(textsobre);
+                                                    clNombre.AddElement(imagen);
+                                                    tblPrueba.AddCell(clNombre);
                                                 }
+
 
                                             }
 
-                                            for (int f = 0; f < row; f++)
-                                            {
 
-                                                PdfPCell clNombre = new PdfPCell { };
-                                                clNombre.BorderWidth = 0;
-                                                clNombre.Padding = 13;
-                                                clNombre.HorizontalAlignment = Element.ALIGN_CENTER;
-                                                iTextSharp.text.Paragraph textsobre = new iTextSharp.text.Paragraph(new Phrase(txtsobreBarra, _standardFont));
-                                                textsobre.Alignment = 1;
-                                                clNombre.AddElement(textsobre);
-                                                clNombre.AddElement(imagen);
-                                                tblPrueba.AddCell(clNombre);
-                                            }
+                                            doc.Add(tblPrueba);
+                                            doc.Close();
+                                            writer.Close();
 
-
+                                            correct = true;
                                         }
-
-
-                                        doc.Add(tblPrueba);
-                                        doc.Close();
-                                        writer.Close();
-
-
                                     }
-                                    correct = true;
 
                                 }
                                 else
@@ -2369,7 +2384,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
             }
             catch (Exception e)
             {
-                MessageBox.Show("Cerrar PDf abierto:" + e.Message, "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Cerrar PDf abierto:" + e.ToString(), "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
                 return correct;
             }
             
@@ -2580,7 +2595,7 @@ namespace FirstFloor.ModernUI.App.Pages.Tabs.Inv
             }
             catch (Exception e)
             {
-                MessageBox.Show("Cerrar PDf abierto:" + e.Message, "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Cerrar PDf abierto:" + e.ToString(), "Magnolia", MessageBoxButton.OK, MessageBoxImage.Error);
                 return correct;
             }
          
